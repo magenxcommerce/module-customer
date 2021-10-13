@@ -10,9 +10,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory;
 
 /**
- * Class Options for Mass Action Group
- *
- * Disable template needed for customers
+ * Class Options
  */
 class Options implements \JsonSerializable
 {
@@ -90,7 +88,6 @@ class Options implements \JsonSerializable
                 $this->options[$optionCode['value']] = [
                     'type' => 'customer_group_' . $optionCode['value'],
                     'label' => __($optionCode['label']),
-                    '__disableTmpl' => true
                 ];
 
                 if ($this->urlPath && $this->paramName) {

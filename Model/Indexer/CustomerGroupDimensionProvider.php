@@ -11,9 +11,6 @@ use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGrou
 use Magento\Framework\Indexer\DimensionFactory;
 use Magento\Framework\Indexer\DimensionProviderInterface;
 
-/**
- * Class CustomerGroupDimensionProvider
- */
 class CustomerGroupDimensionProvider implements DimensionProviderInterface
 {
     /**
@@ -37,19 +34,12 @@ class CustomerGroupDimensionProvider implements DimensionProviderInterface
      */
     private $dimensionFactory;
 
-    /**
-     * @param CustomerGroupCollectionFactory $collectionFactory
-     * @param DimensionFactory $dimensionFactory
-     */
     public function __construct(CustomerGroupCollectionFactory $collectionFactory, DimensionFactory $dimensionFactory)
     {
         $this->dimensionFactory = $dimensionFactory;
         $this->collectionFactory = $collectionFactory;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getIterator(): \Traversable
     {
         foreach ($this->getCustomerGroups() as $customerGroup) {
@@ -58,8 +48,6 @@ class CustomerGroupDimensionProvider implements DimensionProviderInterface
     }
 
     /**
-     * Get Customer Groups
-     *
      * @return array
      */
     private function getCustomerGroups(): array

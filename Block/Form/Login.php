@@ -48,6 +48,15 @@ class Login extends \Magento\Framework\View\Element\Template
     }
 
     /**
+     * @return $this
+     */
+    protected function _prepareLayout()
+    {
+        $this->pageConfig->getTitle()->set(__('Customer Login'));
+        return parent::_prepareLayout();
+    }
+
+    /**
      * Retrieve form posting url
      *
      * @return string

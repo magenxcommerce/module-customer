@@ -13,9 +13,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Upgrade users passwords to the new algorithm
- */
 class UpgradeHashAlgorithmCommand extends Command
 {
     /**
@@ -68,11 +65,8 @@ class UpgradeHashAlgorithmCommand extends Command
             $customer->load($customer->getId());
             if (!$this->encryptor->validateHashVersion($customer->getPasswordHash())) {
                 list($hash, $salt, $version) = explode(Encryptor::DELIMITER, $customer->getPasswordHash(), 3);
-                $version .= Encryptor::DELIMITER . $this->encryptor->getLatestHashVersion();
-                $hash = $this->encryptor->getHash($hash, $salt, $this->encryptor->getLatestHashVersion());
-                list($hash, $salt) = explode(Encryptor::DELIMITER, $hash, 3);
-                $hash = implode(Encryptor::DELIMITER, [$hash, $salt, $version]);
-                $customer->setPasswordHash($hash);
+                $version .= Encryptor::DELIMITER . Encryptor::HASH_VERSION_LATEST;
+                $customer->setPasswordHash($this->encryptor->getHash($hash, $salt, $version));
                 $customer->save();
                 $output->write(".");
             }

@@ -5,7 +5,6 @@
  */
 namespace Magento\Customer\Model\Address\Validator;
 
-use Magento\Customer\Api\AddressMetadataInterface;
 use Magento\Customer\Model\Address\AbstractAddress;
 use Magento\Customer\Model\Address\ValidatorInterface;
 
@@ -42,7 +41,7 @@ class General implements ValidatorInterface
     public function validate(AbstractAddress $address)
     {
         $errors = array_merge(
-            $this->checkRequiredFields($address),
+            $this->checkRequredFields($address),
             $this->checkOptionalFields($address)
         );
 
@@ -56,7 +55,7 @@ class General implements ValidatorInterface
      * @return array
      * @throws \Zend_Validate_Exception
      */
-    private function checkRequiredFields(AbstractAddress $address)
+    private function checkRequredFields(AbstractAddress $address)
     {
         $errors = [];
         if (!\Zend_Validate::is($address->getFirstname(), 'NotEmpty')) {
@@ -88,7 +87,6 @@ class General implements ValidatorInterface
      */
     private function checkOptionalFields(AbstractAddress $address)
     {
-        $this->reloadAddressAttributes($address);
         $errors = [];
         if ($this->isTelephoneRequired()
             && !\Zend_Validate::is($address->getTelephone(), 'NotEmpty')
@@ -149,18 +147,5 @@ class General implements ValidatorInterface
     private function isFaxRequired()
     {
         return $this->eavConfig->getAttribute('customer_address', 'fax')->getIsRequired();
-    }
-
-    /**
-     * Reload address attributes for the certain store
-     *
-     * @param AbstractAddress $address
-     * @return void
-     */
-    private function reloadAddressAttributes(AbstractAddress $address): void
-    {
-        $attributeSetId = $address->getAttributeSetId() ?: AddressMetadataInterface::ATTRIBUTE_SET_ID_ADDRESS;
-        $address->setData('attribute_set_id', $attributeSetId);
-        $this->eavConfig->getEntityAttributes(AddressMetadataInterface::ENTITY_TYPE_ADDRESS, $address);
     }
 }

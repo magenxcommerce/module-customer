@@ -7,14 +7,6 @@ namespace Magento\Customer\Block\Account;
 
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Api\Data\AddressInterface;
-use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Model\Session;
-use Magento\Framework\Phrase;
-use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
-use Magento\Newsletter\Model\Subscriber;
-use Magento\Newsletter\Model\SubscriberFactory;
 
 /**
  * Customer dashboard block
@@ -22,20 +14,20 @@ use Magento\Newsletter\Model\SubscriberFactory;
  * @api
  * @since 100.0.2
  */
-class Dashboard extends Template
+class Dashboard extends \Magento\Framework\View\Element\Template
 {
     /**
-     * @var Subscriber
+     * @var \Magento\Newsletter\Model\Subscriber
      */
     protected $subscription;
 
     /**
-     * @var Session
+     * @var \Magento\Customer\Model\Session
      */
     protected $customerSession;
 
     /**
-     * @var SubscriberFactory
+     * @var \Magento\Newsletter\Model\SubscriberFactory
      */
     protected $subscriberFactory;
 
@@ -50,17 +42,19 @@ class Dashboard extends Template
     protected $customerAccountManagement;
 
     /**
-     * @param Context $context
-     * @param Session $customerSession
-     * @param SubscriberFactory $subscriberFactory
+     * Constructor
+     *
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param \Magento\Newsletter\Model\SubscriberFactory $subscriberFactory
      * @param CustomerRepositoryInterface $customerRepository
      * @param AccountManagementInterface $customerAccountManagement
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        Session $customerSession,
-        SubscriberFactory $subscriberFactory,
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Newsletter\Model\SubscriberFactory $subscriberFactory,
         CustomerRepositoryInterface $customerRepository,
         AccountManagementInterface $customerAccountManagement,
         array $data = []
@@ -75,7 +69,7 @@ class Dashboard extends Template
     /**
      * Return the Customer given the customer Id stored in the session.
      *
-     * @return CustomerInterface
+     * @return \Magento\Customer\Api\Data\CustomerInterface
      */
     public function getCustomer()
     {
@@ -105,7 +99,7 @@ class Dashboard extends Template
     /**
      * Retrieve the Url for editing the specified address.
      *
-     * @param AddressInterface $address
+     * @param \Magento\Customer\Api\Data\AddressInterface $address
      * @return string
      */
     public function getAddressEditUrl($address)
@@ -120,13 +114,20 @@ class Dashboard extends Template
      * Retrieve the Url for customer orders.
      *
      * @return string
-     * @deprecated 102.0.3 Action does not exist
      */
     public function getOrdersUrl()
     {
-        //phpcs:ignore Magento2.Functions.DiscouragedFunction
-        trigger_error('Method is deprecated', E_USER_DEPRECATED);
-        return '';
+        return $this->_urlBuilder->getUrl('customer/order/index', ['_secure' => true]);
+    }
+
+    /**
+     * Retrieve the Url for customer reviews.
+     *
+     * @return string
+     */
+    public function getReviewsUrl()
+    {
+        return $this->_urlBuilder->getUrl('review/customer/index', ['_secure' => true]);
     }
 
     /**
@@ -136,20 +137,19 @@ class Dashboard extends Template
      */
     public function getWishlistUrl()
     {
-        return $this->_urlBuilder->getUrl('wishlist/index', ['_secure' => true]);
+        return $this->_urlBuilder->getUrl('customer/wishlist/index', ['_secure' => true]);
     }
 
     /**
      * Retrieve the subscription object (i.e. the subscriber).
      *
-     * @return Subscriber
+     * @return \Magento\Newsletter\Model\Subscriber
      */
     public function getSubscriptionObject()
     {
         if ($this->subscription === null) {
-            $websiteId = (int)$this->_storeManager->getWebsite()->getId();
-            $this->subscription = $this->_createSubscriber();
-            $this->subscription->loadByCustomer((int)$this->getCustomer()->getId(), $websiteId);
+            $this->subscription =
+                $this->_createSubscriber()->loadByCustomerId($this->customerSession->getCustomerId());
         }
 
         return $this->subscription;
@@ -168,7 +168,7 @@ class Dashboard extends Template
     /**
      * Retrieve subscription text, either subscribed or not.
      *
-     * @return Phrase
+     * @return \Magento\Framework\Phrase
      */
     public function getSubscriptionText()
     {
@@ -182,7 +182,7 @@ class Dashboard extends Template
     /**
      * Retrieve the customer's primary addresses (i.e. default billing and shipping).
      *
-     * @return AddressInterface[]|bool
+     * @return \Magento\Customer\Api\Data\AddressInterface[]|bool
      */
     public function getPrimaryAddresses()
     {
@@ -227,7 +227,7 @@ class Dashboard extends Template
     /**
      * Create an instance of a subscriber.
      *
-     * @return Subscriber
+     * @return \Magento\Newsletter\Model\Subscriber
      */
     protected function _createSubscriber()
     {

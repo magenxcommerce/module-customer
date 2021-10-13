@@ -19,7 +19,6 @@ use Magento\Customer\Model\Session\Proxy as SessionProxy;
 use Magento\Customer\Model\Delegation\Data\NewOperationFactory;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
-use Magento\Framework\Api\CustomAttributesDataInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -101,13 +100,11 @@ class Storage
             }
         }
         $this->session->setCustomerFormData($customerData);
-        $this->session->setDelegatedNewCustomerData(
-            [
-                'customer' => $customerData,
-                'addresses' => $addressesData,
-                'delegated_data' => $delegatedData,
-            ]
-        );
+        $this->session->setDelegatedNewCustomerData([
+            'customer' => $customerData,
+            'addresses' => $addressesData,
+            'delegated_data' => $delegatedData,
+        ]);
     }
 
     /**
@@ -137,31 +134,18 @@ class Storage
                 );
                 $addressData['region'] = $region;
             }
-
-            $customAttributes = [];
-            if (!empty($addressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES])) {
-                $customAttributes = $addressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES];
-                unset($addressData[CustomAttributesDataInterface::CUSTOM_ATTRIBUTES]);
-            }
-
-            $address = $this->addressFactory->create(
+            $addresses[] = $this->addressFactory->create(
                 ['data' => $addressData]
             );
-
-            foreach ($customAttributes as $attributeCode => $attributeValue) {
-                $address->setCustomAttribute($attributeCode, $attributeValue);
-            }
-
-            $addresses[] = $address;
         }
         $customerData = $serialized['customer'];
         $customerData['addresses'] = $addresses;
 
-        return $this->newFactory->create(
-            [
-                'customer' => $this->customerFactory->create(['data' => $customerData]),
-                'additionalData' => $serialized['delegated_data'],
-            ]
-        );
+        return $this->newFactory->create([
+            'customer' => $this->customerFactory->create(
+                ['data' => $customerData]
+            ),
+            'additionalData' => $serialized['delegated_data'],
+        ]);
     }
 }

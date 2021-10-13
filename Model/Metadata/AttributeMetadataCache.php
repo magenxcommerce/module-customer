@@ -12,7 +12,6 @@ use Magento\Eav\Model\Entity\Attribute;
 use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Cache for attribute metadata
@@ -55,32 +54,23 @@ class AttributeMetadataCache
     private $serializer;
 
     /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
      * Constructor
      *
      * @param CacheInterface $cache
      * @param StateInterface $state
      * @param SerializerInterface $serializer
      * @param AttributeMetadataHydrator $attributeMetadataHydrator
-     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         CacheInterface $cache,
         StateInterface $state,
         SerializerInterface $serializer,
-        AttributeMetadataHydrator $attributeMetadataHydrator,
-        StoreManagerInterface $storeManager = null
+        AttributeMetadataHydrator $attributeMetadataHydrator
     ) {
         $this->cache = $cache;
         $this->state = $state;
         $this->serializer = $serializer;
         $this->attributeMetadataHydrator = $attributeMetadataHydrator;
-        $this->storeManager = $storeManager ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(StoreManagerInterface::class);
     }
 
     /**
@@ -92,12 +82,11 @@ class AttributeMetadataCache
      */
     public function load($entityType, $suffix = '')
     {
-        $storeId = $this->storeManager->getStore()->getId();
-        if (isset($this->attributes[$entityType . $suffix . $storeId])) {
-            return $this->attributes[$entityType . $suffix . $storeId];
+        if (isset($this->attributes[$entityType . $suffix])) {
+            return $this->attributes[$entityType . $suffix];
         }
         if ($this->isEnabled()) {
-            $cacheKey = self::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix . $storeId;
+            $cacheKey = self::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix;
             $serializedData = $this->cache->load($cacheKey);
             if ($serializedData) {
                 $attributesData = $this->serializer->unserialize($serializedData);
@@ -105,7 +94,7 @@ class AttributeMetadataCache
                 foreach ($attributesData as $key => $attributeData) {
                     $attributes[$key] = $this->attributeMetadataHydrator->hydrate($attributeData);
                 }
-                $this->attributes[$entityType . $suffix . $storeId] = $attributes;
+                $this->attributes[$entityType . $suffix] = $attributes;
                 return $attributes;
             }
         }
@@ -122,10 +111,9 @@ class AttributeMetadataCache
      */
     public function save($entityType, array $attributes, $suffix = '')
     {
-        $storeId = $this->storeManager->getStore()->getId();
-        $this->attributes[$entityType . $suffix . $storeId] = $attributes;
+        $this->attributes[$entityType . $suffix] = $attributes;
         if ($this->isEnabled()) {
-            $cacheKey = self::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix . $storeId;
+            $cacheKey = self::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix;
             $attributesData = [];
             foreach ($attributes as $key => $attribute) {
                 $attributesData[$key] = $this->attributeMetadataHydrator->extract($attribute);

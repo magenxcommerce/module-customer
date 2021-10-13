@@ -11,24 +11,19 @@ define([
     'underscore',
     'ko',
     'Magento_Customer/js/section-config',
-    'mage/url',
     'mage/storage',
     'jquery/jquery-storageapi'
-], function ($, _, ko, sectionConfig, url) {
+], function ($, _, ko, sectionConfig) {
     'use strict';
 
-    var options = {},
+    var options,
         storage,
         storageInvalidation,
         invalidateCacheBySessionTimeOut,
         invalidateCacheByCloseCookieSession,
         dataProvider,
         buffer,
-        customerData,
-        deferred = $.Deferred();
-
-    url.setBaseUrl(window.BASE_URL);
-    options.sectionLoadUrl = url.build('customer/section/load');
+        customerData;
 
     //TODO: remove global change, in this case made for initNamespaceStorage
     $.cookieStorage.setConf({
@@ -80,17 +75,17 @@ define([
 
         /**
          * @param {Object} sectionNames
-         * @param {Boolean} forceNewSectionTimestamp
+         * @param {Number} updateSectionId
          * @return {*}
          */
-        getFromServer: function (sectionNames, forceNewSectionTimestamp) {
+        getFromServer: function (sectionNames, updateSectionId) {
             var parameters;
 
             sectionNames = sectionConfig.filterClientSideSections(sectionNames);
             parameters = _.isArray(sectionNames) ? {
                 sections: sectionNames.join(',')
             } : [];
-            parameters['force_new_section_timestamp'] = forceNewSectionTimestamp;
+            parameters['update_section_id'] = updateSectionId;
 
             return $.getJSON(options.sectionLoadUrl, parameters).fail(function (jqXHR) {
                 throw new Error(jqXHR);
@@ -199,9 +194,31 @@ define([
          * Customer data initialization
          */
         init: function () {
-            var expiredSectionNames = this.getExpiredSectionNames();
+            var countryData,
+                privateContentVersion = 'private_content_version',
+                privateContent = $.cookieStorage.get(privateContentVersion),
+                localPrivateContent = $.localStorage.get(privateContentVersion),
+                needVersion = 'need_version',
+                expiredSectionNames = this.getExpiredSectionNames(),
+                isLoading = false;
 
-            if (expiredSectionNames.length > 0) {
+            if (privateContent &&
+                !$.cookieStorage.isSet(privateContentVersion) &&
+                !$.localStorage.isSet(privateContentVersion)
+            ) {
+                $.cookieStorage.set(privateContentVersion, needVersion);
+                $.localStorage.set(privateContentVersion, needVersion);
+                this.reload([], false);
+                isLoading = true;
+            } else if (localPrivateContent !== privateContent) {
+                if (!$.cookieStorage.isSet(privateContentVersion)) {
+                    privateContent = needVersion;
+                    $.cookieStorage.set(privateContentVersion, privateContent);
+                }
+                $.localStorage.set(privateContentVersion, privateContent);
+                this.reload([], false);
+                isLoading = true;
+            } else if (expiredSectionNames.length > 0) {
                 _.each(dataProvider.getFromStorage(storage.keys()), function (sectionData, sectionName) {
                     buffer.notify(sectionName, sectionData);
                 });
@@ -216,9 +233,12 @@ define([
                 }
             }
 
-            if (!_.isEmpty($.cookieStorage.get('section_data_clean'))) {
-                this.reload(sectionConfig.getSectionNames(), true);
-                $.cookieStorage.set('section_data_clean', '');
+            if (!_.isEmpty(privateContent)) {
+                countryData = this.get('directory-data');
+
+                if (_.isEmpty(countryData()) && !isLoading) {
+                    customerData.reload(['directory-data'], false);
+                }
             }
         },
 
@@ -305,15 +325,12 @@ define([
         },
 
         /**
-         * Avoid using this function directly 'cause of possible performance drawbacks.
-         * Each customer section reload brings new non-cached ajax request.
-         *
          * @param {Array} sectionNames
-         * @param {Boolean} forceNewSectionTimestamp
+         * @param {Number} updateSectionId
          * @return {*}
          */
-        reload: function (sectionNames, forceNewSectionTimestamp) {
-            return dataProvider.getFromServer(sectionNames, forceNewSectionTimestamp).done(function (sections) {
+        reload: function (sectionNames, updateSectionId) {
+            return dataProvider.getFromServer(sectionNames, updateSectionId).done(function (sections) {
                 $(document).trigger('customer-data-reload', [sectionNames]);
                 buffer.update(sections);
             });
@@ -326,9 +343,7 @@ define([
             var sectionDataIds,
                 sectionsNamesForInvalidation;
 
-            sectionsNamesForInvalidation = _.contains(sectionNames, '*') ? sectionConfig.getSectionNames() :
-                sectionNames;
-
+            sectionsNamesForInvalidation = _.contains(sectionNames, '*') ? buffer.keys() : sectionNames;
             $(document).trigger('customer-data-invalidate', [sectionsNamesForInvalidation]);
             buffer.remove(sectionsNamesForInvalidation);
             sectionDataIds = $.cookieStorage.get('section_data_ids') || {};
@@ -343,15 +358,6 @@ define([
         },
 
         /**
-         * Checks if customer data is initialized.
-         *
-         * @returns {jQuery.Deferred}
-         */
-        getInitCustomerData: function () {
-            return deferred.promise();
-        },
-
-        /**
          * @param {Object} settings
          * @constructor
          */
@@ -360,7 +366,6 @@ define([
             invalidateCacheBySessionTimeOut(settings);
             invalidateCacheByCloseCookieSession();
             customerData.init();
-            deferred.resolve();
         }
     };
 

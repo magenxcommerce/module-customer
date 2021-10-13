@@ -7,9 +7,6 @@ namespace Magento\Customer\Ui\Component;
 
 use Magento\Customer\Api\Data\AttributeMetadataInterface as AttributeMetadata;
 
-/**
- * Class FilterFactory. Responsible for generation filter object
- */
 class FilterFactory
 {
     /**
@@ -37,8 +34,6 @@ class FilterFactory
     }
 
     /**
-     * Creates filter object
-     *
      * @param array $attributeData
      * @param \Magento\Framework\View\Element\UiComponent\ContextInterface $context
      * @return \Magento\Ui\Component\Listing\Columns\ColumnInterface
@@ -68,13 +63,11 @@ class FilterFactory
     }
 
     /**
-     * Returns filter type
-     *
      * @param string $frontendInput
      * @return string
      */
     protected function getFilterType($frontendInput)
     {
-        return $this->filterMap[$frontendInput] ?? $this->filterMap['default'];
+        return isset($this->filterMap[$frontendInput]) ? $this->filterMap[$frontendInput] : $this->filterMap['default'];
     }
 }

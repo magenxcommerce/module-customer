@@ -23,7 +23,7 @@ use Magento\Framework\Model\AbstractExtensibleModel;
  * @method string getFirstname()
  * @method string getMiddlename()
  * @method string getLastname()
- * @method string getCountryId()
+ * @method int getCountryId()
  * @method string getCity()
  * @method string getTelephone()
  * @method string getCompany()
@@ -222,7 +222,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Get street line by number
+     * Get steet line by number
      *
      * @param int $number
      * @return string
@@ -230,7 +230,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     public function getStreetLine($number)
     {
         $lines = $this->getStreet();
-        return $lines[$number - 1] ?? '';
+        return isset($lines[$number - 1]) ? $lines[$number - 1] : '';
     }
 
     /**
@@ -271,8 +271,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
      * Enforce format of the street field or other multiline custom attributes
      *
      * @param array|string $key
-     * @param array|string|null $value
-     *
+     * @param null $value
      * @return \Magento\Framework\DataObject
      */
     public function setData($key, $value = null)
@@ -281,19 +280,12 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
             $key = $this->_implodeArrayField($key);
         } elseif (is_array($value) && $this->isAddressMultilineAttribute($key)) {
             $value = $this->_implodeArrayValues($value);
-        } elseif (self::CUSTOM_ATTRIBUTES === $key && is_array($value)) {
-            foreach ($value as &$attribute) {
-                $attribute = is_array($attribute) ? $attribute : $attribute->__toArray();
-                $attribute = $this->processCustomAttribute($attribute);
-            }
         }
-
         return parent::setData($key, $value);
     }
 
     /**
      * Check that address can have multiline attribute by this code (as street or some custom attribute)
-     *
      * @param string $code
      * @return bool
      */
@@ -381,8 +373,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
             }
         } elseif (is_string($region)) {
             $this->setData('region', $region);
-        } elseif (!$regionId && is_array($region)) {
-            $this->setData('region', $regionId);
         }
 
         return $this->getData('region');
@@ -413,8 +403,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Return Region ID
-     *
      * @return int
      */
     public function getRegionId()
@@ -437,9 +425,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Get country
-     *
-     * @return string
+     * @return int
      */
     public function getCountry()
     {
@@ -516,8 +502,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Processing object before save data
-     *
      * @return $this
      */
     public function beforeSave()
@@ -532,12 +516,10 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
      *
      * @param int|null $defaultBillingAddressId
      * @param int|null $defaultShippingAddressId
-     *
      * @return AddressInterface
      * Use Api/Data/AddressInterface as a result of service operations. Don't rely on the model to provide
      * the instance of Api/Data/AddressInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getDataModel($defaultBillingAddressId = null, $defaultShippingAddressId = null)
     {
@@ -609,8 +591,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Create region instance
-     *
      * @return \Magento\Directory\Model\Region
      */
     protected function _createRegionInstance()
@@ -619,8 +599,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Create country instance
-     *
      * @return \Magento\Directory\Model\Country
      */
     protected function _createCountryInstance()
@@ -630,7 +608,6 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
 
     /**
      * Unset Region from address
-     *
      * @return $this
      * @since 101.0.0
      */
@@ -640,10 +617,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Is company required
-     *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @since 101.0.0
      */
     protected function isCompanyRequired()
@@ -652,10 +626,7 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Is telephone required
-     *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @since 101.0.0
      */
     protected function isTelephoneRequired()
@@ -664,33 +635,11 @@ class AbstractAddress extends AbstractExtensibleModel implements AddressModelInt
     }
 
     /**
-     * Is fax required
-     *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @since 101.0.0
      */
     protected function isFaxRequired()
     {
         return ($this->_eavConfig->getAttribute('customer_address', 'fax')->getIsRequired());
-    }
-
-    /**
-     * Unify attribute format.
-     *
-     * @param array $attribute
-     * @return array
-     */
-    private function processCustomAttribute(array $attribute): array
-    {
-        if (isset($attribute['attribute_code']) &&
-            isset($attribute['value']) &&
-            is_array($attribute['value']) &&
-            $this->isAddressMultilineAttribute($attribute['attribute_code'])
-        ) {
-            $attribute['value'] = $this->_implodeArrayValues($attribute['value']);
-        }
-
-        return $attribute;
     }
 }

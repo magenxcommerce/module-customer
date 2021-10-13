@@ -7,14 +7,13 @@
 namespace Magento\Customer\Controller\Adminhtml\Locks;
 
 use Magento\Customer\Model\AuthenticationInterface;
-use Magento\Framework\App\Action\HttpGetActionInterface as HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Backend\App\Action;
 
 /**
  * Unlock Customer Controller
  */
-class Unlock extends \Magento\Backend\App\Action implements HttpGetActionInterface
+class Unlock extends \Magento\Backend\App\Action
 {
     /**
      * Authorization level of a basic admin session
@@ -56,10 +55,10 @@ class Unlock extends \Magento\Backend\App\Action implements HttpGetActionInterfa
             // unlock customer
             if ($customerId) {
                 $this->authentication->unlock($customerId);
-                $this->getMessageManager()->addSuccessMessage(__('Customer has been unlocked successfully.'));
+                $this->getMessageManager()->addSuccess(__('Customer has been unlocked successfully.'));
             }
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            $this->messageManager->addError($e->getMessage());
         }
 
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */

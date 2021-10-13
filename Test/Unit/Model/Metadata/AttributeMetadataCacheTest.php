@@ -1,11 +1,8 @@
 <?php
-
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Test\Unit\Model\Metadata;
 
 use Magento\Config\App\Config\Type\System;
@@ -18,70 +15,48 @@ use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
-class AttributeMetadataCacheTest extends TestCase
+class AttributeMetadataCacheTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var CacheInterface|MockObject
+     * @var CacheInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $cacheMock;
 
     /**
-     * @var StateInterface|MockObject
+     * @var StateInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $stateMock;
 
     /**
-     * @var AttributeMetadataHydrator|MockObject
+     * @var AttributeMetadataHydrator|\PHPUnit_Framework_MockObject_MockObject
      */
     private $attributeMetadataHydratorMock;
 
     /**
-     * @var SerializerInterface|MockObject
+     * @var SerializerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $serializerMock;
 
     /**
-     * @var AttributeMetadataCache|MockObject
+     * @var AttributeMetadataCache|\PHPUnit_Framework_MockObject_MockObject
      */
     private $attributeMetadataCache;
 
-    /**
-     * @var StoreInterface|MockObject
-     */
-    private $storeMock;
-
-    /**
-     * @var StoreManagerInterface|MockObject
-     */
-    private $storeManagerMock;
-
-    protected function setUp(): void
+    protected function setUp()
     {
         $objectManager = new ObjectManager($this);
-        $this->cacheMock = $this->getMockForAbstractClass(CacheInterface::class);
-        $this->stateMock = $this->getMockForAbstractClass(StateInterface::class);
-        $this->serializerMock = $this->getMockForAbstractClass(SerializerInterface::class);
+        $this->cacheMock = $this->createMock(CacheInterface::class);
+        $this->stateMock = $this->createMock(StateInterface::class);
+        $this->serializerMock = $this->createMock(SerializerInterface::class);
         $this->attributeMetadataHydratorMock = $this->createMock(AttributeMetadataHydrator::class);
-        $this->storeMock = $this->getMockForAbstractClass(StoreInterface::class);
-        $this->storeManagerMock = $this->getMockForAbstractClass(StoreManagerInterface::class);
-        $this->storeManagerMock->method('getStore')->willReturn($this->storeMock);
-        $this->storeMock->method('getId')->willReturn(1);
         $this->attributeMetadataCache = $objectManager->getObject(
             AttributeMetadataCache::class,
             [
                 'cache' => $this->cacheMock,
                 'state' => $this->stateMock,
                 'serializer' => $this->serializerMock,
-                'attributeMetadataHydrator' => $this->attributeMetadataHydratorMock,
-                'storeManager' => $this->storeManagerMock
+                'attributeMetadataHydrator' => $this->attributeMetadataHydratorMock
             ]
         );
     }
@@ -105,8 +80,7 @@ class AttributeMetadataCacheTest extends TestCase
     {
         $entityType = 'EntityType';
         $suffix = 'none';
-        $storeId = 1;
-        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix . $storeId;
+        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix;
         $this->stateMock->expects($this->once())
             ->method('isEnabled')
             ->with(Type::TYPE_IDENTIFIER)
@@ -122,8 +96,7 @@ class AttributeMetadataCacheTest extends TestCase
     {
         $entityType = 'EntityType';
         $suffix = 'none';
-        $storeId = 1;
-        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix . $storeId;
+        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix;
         $serializedString = 'serialized string';
         $attributeMetadataOneData = [
             'attribute_code' => 'attribute_code',
@@ -142,16 +115,25 @@ class AttributeMetadataCacheTest extends TestCase
             ->method('unserialize')
             ->with($serializedString)
             ->willReturn($attributesMetadataData);
-        /** @var AttributeMetadataInterface|MockObject $attributeMetadataMock */
-        $attributeMetadataMock = $this->getMockForAbstractClass(AttributeMetadataInterface::class);
+        /** @var AttributeMetadataInterface|\PHPUnit_Framework_MockObject_MockObject $attributeMetadataMock */
+        $attributeMetadataMock = $this->createMock(AttributeMetadataInterface::class);
         $this->attributeMetadataHydratorMock->expects($this->at(0))
             ->method('hydrate')
             ->with($attributeMetadataOneData)
             ->willReturn($attributeMetadataMock);
         $attributesMetadata = $this->attributeMetadataCache->load($entityType, $suffix);
-        $this->assertIsArray($attributesMetadata);
-        $this->assertArrayHasKey(0, $attributesMetadata);
-        $this->assertInstanceOf(AttributeMetadataInterface::class, $attributesMetadata[0]);
+        $this->assertInternalType(
+            \PHPUnit\Framework\Constraint\IsType::TYPE_ARRAY,
+            $attributesMetadata
+        );
+        $this->assertArrayHasKey(
+            0,
+            $attributesMetadata
+        );
+        $this->assertInstanceOf(
+            AttributeMetadataInterface::class,
+            $attributesMetadata[0]
+        );
     }
 
     public function testSaveCacheDisabled()
@@ -174,8 +156,7 @@ class AttributeMetadataCacheTest extends TestCase
     {
         $entityType = 'EntityType';
         $suffix = 'none';
-        $storeId = 1;
-        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix . $storeId;
+        $cacheKey = AttributeMetadataCache::ATTRIBUTE_METADATA_CACHE_PREFIX . $entityType . $suffix;
         $serializedString = 'serialized string';
         $attributeMetadataOneData = [
             'attribute_code' => 'attribute_code',
@@ -186,8 +167,8 @@ class AttributeMetadataCacheTest extends TestCase
             ->with(Type::TYPE_IDENTIFIER)
             ->willReturn(true);
 
-        /** @var AttributeMetadataInterface|MockObject $attributeMetadataMock */
-        $attributeMetadataMock = $this->getMockForAbstractClass(AttributeMetadataInterface::class);
+        /** @var AttributeMetadataInterface|\PHPUnit_Framework_MockObject_MockObject $attributeMetadataMock */
+        $attributeMetadataMock = $this->createMock(AttributeMetadataInterface::class);
         $attributesMetadata = [$attributeMetadataMock];
         $this->attributeMetadataHydratorMock->expects($this->once())
             ->method('extract')

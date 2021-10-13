@@ -20,8 +20,6 @@ use Magento\Framework\Indexer\StateInterface;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Math\Random;
-use Magento\Framework\Indexer\IndexerInterface;
 
 /**
  * Customer model
@@ -63,7 +61,8 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     const XML_PATH_RESET_PASSWORD_TEMPLATE = 'customer/password/reset_password_template';
 
     /**
-     * @deprecated @see \Magento\Customer\Model\AccountConfirmation::XML_PATH_IS_CONFIRM
+     * @deprecated
+     * @see AccountConfirmation::XML_PATH_IS_CONFIRM
      */
     const XML_PATH_IS_CONFIRM = 'customer/create_account/confirm';
 
@@ -181,7 +180,7 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     protected $_encryptor;
 
     /**
-     * @var Random
+     * @var \Magento\Framework\Math\Random
      */
     protected $mathRandom;
 
@@ -221,18 +220,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     private $accountConfirmation;
 
     /**
-     * Caching property to store customer address data models by the address ID.
-     *
-     * @var array
-     */
-    private $storedAddress;
-
-    /**
-     * @var IndexerInterface|null
-     */
-    private $indexer;
-
-    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
@@ -254,7 +241,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param array $data
      * @param AccountConfirmation|null $accountConfirmation
-     * @param Random|null $mathRandom
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -279,8 +265,7 @@ class Customer extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Indexer\IndexerRegistry $indexerRegistry,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
-        AccountConfirmation $accountConfirmation = null,
-        Random $mathRandom = null
+        AccountConfirmation $accountConfirmation = null
     ) {
         $this->metadataService = $metadataService;
         $this->_scopeConfig = $scopeConfig;
@@ -299,7 +284,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
         $this->indexerRegistry = $indexerRegistry;
         $this->accountConfirmation = $accountConfirmation ?: ObjectManager::getInstance()
             ->get(AccountConfirmation::class);
-        $this->mathRandom = $mathRandom ?: ObjectManager::getInstance()->get(Random::class);
         parent::__construct(
             $context,
             $registry,
@@ -307,19 +291,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
             $resourceCollection,
             $data
         );
-    }
-
-    /**
-     * Micro-caching optimization
-     *
-     * @return IndexerInterface
-     */
-    private function getIndexer() : IndexerInterface
-    {
-        if ($this->indexer === null) {
-            $this->indexer = $this->indexerRegistry->get(self::CUSTOMER_GRID_INDEXER_ID);
-        }
-        return $this->indexer;
     }
 
     /**
@@ -343,10 +314,7 @@ class Customer extends \Magento\Framework\Model\AbstractModel
         $addressesData = [];
         /** @var \Magento\Customer\Model\Address $address */
         foreach ($this->getAddresses() as $address) {
-            if (!isset($this->storedAddress[$address->getId()])) {
-                $this->storedAddress[$address->getId()] = $address->getDataModel();
-            }
-            $addressesData[] = $this->storedAddress[$address->getId()];
+            $addressesData[] = $address->getDataModel();
         }
         $customerDataObject = $this->customerDataFactory->create();
         $this->dataObjectHelper->populateWithArray(
@@ -391,6 +359,13 @@ class Customer extends \Magento\Framework\Model\AbstractModel
             $this->setId($customerId);
         }
 
+        // Need to use attribute set or future updates can cause data loss
+        if (!$this->getAttributeSetId()) {
+            $this->setAttributeSetId(
+                CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER
+            );
+        }
+
         return $this;
     }
 
@@ -416,9 +391,7 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     public function authenticate($login, $password)
     {
         $this->loadByEmail($login);
-        if ($this->getConfirmation() &&
-            $this->accountConfirmation->isConfirmationRequired($this->getWebsiteId(), $this->getId(), $this->getEmail())
-        ) {
+        if ($this->getConfirmation() && $this->isConfirmationRequired()) {
             throw new EmailNotConfirmedException(
                 __("This account isn't confirmed. Verify and try again.")
             );
@@ -439,9 +412,8 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     /**
      * Load customer by email
      *
-     * @param string $customerEmail
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param   string $customerEmail
+     * @return  $this
      */
     public function loadByEmail($customerEmail)
     {
@@ -452,9 +424,8 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     /**
      * Change customer password
      *
-     * @param string $newPassword
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param   string $newPassword
+     * @return  $this
      */
     public function changePassword($newPassword)
     {
@@ -466,7 +437,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      * Get full customer name
      *
      * @return string
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getName()
     {
@@ -489,9 +459,8 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     /**
      * Add address to address collection
      *
-     * @param Address $address
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param   Address $address
+     * @return  $this
      */
     public function addAddress(Address $address)
     {
@@ -515,7 +484,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      *
      * @param int $addressId
      * @return Address
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getAddressItemById($addressId)
     {
@@ -536,7 +504,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      * Customer addresses collection
      *
      * @return \Magento\Customer\Model\ResourceModel\Address\Collection
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getAddressesCollection()
     {
@@ -568,7 +535,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      * Retrieve all customer attributes
      *
      * @return Attribute[]
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getAttributes()
     {
@@ -623,7 +589,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      *
      * @param string $password
      * @return boolean
-     * @throws \Exception
      */
     public function validatePassword($password)
     {
@@ -837,7 +802,7 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      */
     public function getRandomConfirmationKey()
     {
-        return $this->mathRandom->getRandomString(32);
+        return md5(uniqid());
     }
 
     /**
@@ -997,18 +962,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Retrieve attribute set id for customer.
-     *
-     * @return int
-     * @since 102.0.1
-     */
-    public function getAttributeSetId()
-    {
-        // phpstan:ignore "Call to an undefined static method*"
-        return parent::getAttributeSetId() ?: CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER;
-    }
-
-    /**
      * Set store to customer
      *
      * @param \Magento\Store\Model\Store $store
@@ -1089,13 +1042,25 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * Prepare customer for delete
+     *
+     * @return $this
+     */
+    public function beforeDelete()
+    {
+        //TODO : Revisit and figure handling permissions in MAGETWO-11084 Implementation: Service Context Provider
+        return parent::beforeDelete();
+    }
+
+    /**
      * Processing object after save data
      *
      * @return $this
      */
     public function afterSave()
     {
-        if ($this->getIndexer()->getState()->getStatus() == StateInterface::STATUS_VALID) {
+        $indexer = $this->indexerRegistry->get(self::CUSTOMER_GRID_INDEXER_ID);
+        if ($indexer->getState()->getStatus() == StateInterface::STATUS_VALID) {
             $this->_getResource()->addCommitCallback([$this, 'reindex']);
         }
         return parent::afterSave();
@@ -1119,7 +1084,9 @@ class Customer extends \Magento\Framework\Model\AbstractModel
      */
     public function reindex()
     {
-        $this->getIndexer()->reindexRow($this->getId());
+        /** @var \Magento\Framework\Indexer\IndexerInterface $indexer */
+        $indexer = $this->indexerRegistry->get(self::CUSTOMER_GRID_INDEXER_ID);
+        $indexer->reindexRow($this->getId());
     }
 
     /**
@@ -1325,8 +1292,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Create Address from Factory
-     *
      * @return Address
      */
     protected function _createAddressInstance()
@@ -1335,8 +1300,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Create Address Collection from Factory
-     *
      * @return \Magento\Customer\Model\ResourceModel\Address\Collection
      */
     protected function _createAddressCollection()
@@ -1345,8 +1308,6 @@ class Customer extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Get Template Types
-     *
      * @return array
      */
     protected function getTemplateTypes()

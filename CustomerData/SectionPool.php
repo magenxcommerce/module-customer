@@ -53,24 +53,13 @@ class SectionPool implements SectionPoolInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getSectionsData(array $sectionNames = null, $forceNewTimestamp = false)
+    public function getSectionsData(array $sectionNames = null, $updateIds = false)
     {
         $sectionsData = $sectionNames ? $this->getSectionDataByNames($sectionNames) : $this->getAllSectionData();
-        $sectionsData = $this->identifier->markSections($sectionsData, $sectionNames, $forceNewTimestamp);
+        $sectionsData = $this->identifier->markSections($sectionsData, $sectionNames, $updateIds);
         return $sectionsData;
-    }
-
-    /**
-     * Return array of section names.
-     *
-     * @return array
-     * @since 102.0.4
-     */
-    public function getSectionNames()
-    {
-        return array_keys($this->sectionSourceMap);
     }
 
     /**

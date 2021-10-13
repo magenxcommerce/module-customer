@@ -1,113 +1,108 @@
 <?php
 /**
+ * Depersonalize customer session data
+ *
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Model\Layout;
 
-use Magento\Customer\Model\CustomerFactory;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Customer\Model\Visitor;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\Session\SessionManagerInterface;
-use Magento\Framework\View\LayoutInterface;
 use Magento\PageCache\Model\DepersonalizeChecker;
 
 /**
- * Depersonalize customer data.
- *
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ * Class DepersonalizePlugin
  */
 class DepersonalizePlugin
 {
     /**
      * @var DepersonalizeChecker
      */
-    private $depersonalizeChecker;
+    protected $depersonalizeChecker;
 
     /**
-     * @var SessionManagerInterface
+     * @var \Magento\Framework\Session\SessionManagerInterface
      */
-    private $session;
+    protected $session;
 
     /**
-     * @var CustomerSession
+     * @var \Magento\Customer\Model\Session
      */
-    private $customerSession;
+    protected $customerSession;
 
     /**
-     * @var CustomerFactory
+     * @var \Magento\Customer\Model\CustomerFactory
      */
-    private $customerFactory;
+    protected $customerFactory;
 
     /**
-     * @var Visitor
+     * @var \Magento\Customer\Model\Visitor
      */
-    private $visitor;
+    protected $visitor;
 
     /**
      * @var int
      */
-    private $customerGroupId;
+    protected $customerGroupId;
 
     /**
      * @var string
      */
-    private $formKey;
+    protected $formKey;
 
     /**
      * @param DepersonalizeChecker $depersonalizeChecker
-     * @param SessionManagerInterface $session
-     * @param CustomerSession $customerSession
-     * @param CustomerFactory $customerFactory
-     * @param Visitor $visitor
+     * @param \Magento\Framework\Session\SessionManagerInterface $session
+     * @param \Magento\Customer\Model\Session $customerSession
+     * @param \Magento\Customer\Model\CustomerFactory $customerFactory
+     * @param \Magento\Customer\Model\Visitor $visitor
      */
     public function __construct(
         DepersonalizeChecker $depersonalizeChecker,
-        SessionManagerInterface $session,
-        CustomerSession $customerSession,
-        CustomerFactory $customerFactory,
-        Visitor $visitor
+        \Magento\Framework\Session\SessionManagerInterface $session,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Customer\Model\CustomerFactory $customerFactory,
+        \Magento\Customer\Model\Visitor $visitor
     ) {
-        $this->depersonalizeChecker = $depersonalizeChecker;
         $this->session = $session;
         $this->customerSession = $customerSession;
         $this->customerFactory = $customerFactory;
         $this->visitor = $visitor;
+        $this->depersonalizeChecker = $depersonalizeChecker;
     }
 
     /**
-     * Retrieve sensitive customer data.
+     * Before generate Xml
      *
-     * @param LayoutInterface $subject
-     * @return void
+     * @param \Magento\Framework\View\LayoutInterface $subject
+     * @return array
      */
-    public function beforeGenerateXml(LayoutInterface $subject)
+    public function beforeGenerateXml(\Magento\Framework\View\LayoutInterface $subject)
     {
         if ($this->depersonalizeChecker->checkIfDepersonalize($subject)) {
             $this->customerGroupId = $this->customerSession->getCustomerGroupId();
-            $this->formKey = $this->session->getData(FormKey::FORM_KEY);
+            $this->formKey = $this->session->getData(\Magento\Framework\Data\Form\FormKey::FORM_KEY);
         }
+        return [];
     }
 
     /**
-     * Change sensitive customer data if the depersonalization is needed.
+     * After generate Xml
      *
-     * @param LayoutInterface $subject
-     * @return void
+     * @param \Magento\Framework\View\LayoutInterface $subject
+     * @param \Magento\Framework\View\LayoutInterface $result
+     * @return \Magento\Framework\View\LayoutInterface
      */
-    public function afterGenerateElements(LayoutInterface $subject)
+    public function afterGenerateXml(\Magento\Framework\View\LayoutInterface $subject, $result)
     {
         if ($this->depersonalizeChecker->checkIfDepersonalize($subject)) {
             $this->visitor->setSkipRequestLogging(true);
             $this->visitor->unsetData();
             $this->session->clearStorage();
             $this->customerSession->clearStorage();
-            $this->session->setData(FormKey::FORM_KEY, $this->formKey);
+            $this->session->setData(\Magento\Framework\Data\Form\FormKey::FORM_KEY, $this->formKey);
             $this->customerSession->setCustomerGroupId($this->customerGroupId);
             $this->customerSession->setCustomer($this->customerFactory->create()->setGroupId($this->customerGroupId));
         }
+        return $result;
     }
 }

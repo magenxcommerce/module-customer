@@ -1,26 +1,21 @@
 <?php
 /**
+ *
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Magento\Customer\Controller\Account;
 
-use Magento\Customer\Api\AccountManagementInterface;
-use Magento\Customer\Controller\AbstractAccount;
-use Magento\Customer\Model\Session;
 use Magento\Customer\Model\Url;
-use Magento\Framework\App\Action\HttpGetActionInterface as HttpGetActionInterface;
-use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
 use Magento\Framework\App\Action\Context;
+use Magento\Customer\Model\Session;
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Exception\State\InvalidTransitionException;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Framework\Exception\State\InvalidTransitionException;
 
-/**
- * Class Confirmation. Send confirmation link to specified email
- */
-class Confirmation extends AbstractAccount implements HttpGetActionInterface, HttpPostActionInterface
+class Confirmation extends \Magento\Customer\Controller\AbstractAccount
 {
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -96,11 +91,11 @@ class Confirmation extends AbstractAccount implements HttpGetActionInterface, Ht
                     $email,
                     $this->storeManager->getStore()->getWebsiteId()
                 );
-                $this->messageManager->addSuccessMessage(__('Please check your email for confirmation key.'));
+                $this->messageManager->addSuccess(__('Please check your email for confirmation key.'));
             } catch (InvalidTransitionException $e) {
-                $this->messageManager->addSuccessMessage(__('This email does not require confirmation.'));
+                $this->messageManager->addSuccess(__('This email does not require confirmation.'));
             } catch (\Exception $e) {
-                $this->messageManager->addExceptionMessage($e, __('Wrong email.'));
+                $this->messageManager->addException($e, __('Wrong email.'));
                 $resultRedirect->setPath('*/*/*', ['email' => $email, '_secure' => true]);
                 return $resultRedirect;
             }

@@ -8,18 +8,8 @@ namespace Magento\Customer\Controller\Adminhtml\Index;
 use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 
-/**
- * Delete customer action.
- */
 class Delete extends \Magento\Customer\Controller\Adminhtml\Index implements HttpPostActionInterface
 {
-    /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    const ADMIN_RESOURCE = 'Magento_Customer::delete';
-
     /**
      * Delete customer action
      *
@@ -31,7 +21,7 @@ class Delete extends \Magento\Customer\Controller\Adminhtml\Index implements Htt
         $formKeyIsValid = $this->_formKeyValidator->validate($this->getRequest());
         $isPost = $this->getRequest()->isPost();
         if (!$formKeyIsValid || !$isPost) {
-            $this->messageManager->addErrorMessage(__('Customer could not be deleted.'));
+            $this->messageManager->addError(__('Customer could not be deleted.'));
             return $resultRedirect->setPath('customer/index');
         }
 
@@ -39,9 +29,9 @@ class Delete extends \Magento\Customer\Controller\Adminhtml\Index implements Htt
         if (!empty($customerId)) {
             try {
                 $this->_customerRepository->deleteById($customerId);
-                $this->messageManager->addSuccessMessage(__('You deleted the customer.'));
+                $this->messageManager->addSuccess(__('You deleted the customer.'));
             } catch (\Exception $exception) {
-                $this->messageManager->addErrorMessage($exception->getMessage());
+                $this->messageManager->addError($exception->getMessage());
             }
         }
 

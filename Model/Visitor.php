@@ -6,39 +6,23 @@
 
 namespace Magento\Customer\Model;
 
-use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\App\Request;
 use Magento\Framework\App\RequestSafetyInterface;
-use Magento\Framework\Data\Collection\AbstractDb;
-use Magento\Framework\Event\Observer as EventObserver;
-use Magento\Framework\HTTP\Header;
-use Magento\Framework\Indexer\IndexerRegistry;
-use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Model\Context as ModelContext;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Registry;
-use Magento\Framework\Session\Config as SessionConfig;
-use Magento\Framework\Session\SessionManagerInterface;
-use Magento\Framework\Stdlib\DateTime;
-use Magento\Store\Model\ScopeInterface;
 
 /**
- * Class Visitor responsible for initializing visitor's.
- *
- *  Used to track sessions of the logged in customers
- *
+ * Class Visitor
+ * @package Magento\Customer\Model
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
-class Visitor extends AbstractModel
+class Visitor extends \Magento\Framework\Model\AbstractModel
 {
     const VISITOR_TYPE_CUSTOMER = 'c';
+
     const VISITOR_TYPE_VISITOR = 'v';
+
     const DEFAULT_ONLINE_MINUTES_INTERVAL = 15;
+
     const XML_PATH_ONLINE_INTERVAL = 'customer/online_customers/online_minutes_interval';
-    private const SECONDS_24_HOURS = 86400;
 
     /**
      * @var string[]
@@ -46,12 +30,12 @@ class Visitor extends AbstractModel
     protected $ignoredUserAgents;
 
     /**
-     * @var SessionManagerInterface
+     * @var \Magento\Framework\Session\SessionManagerInterface
      */
     protected $session;
 
     /**
-     * @var Header
+     * @var \Magento\Framework\HTTP\Header
      */
     protected $httpHeader;
 
@@ -70,17 +54,17 @@ class Visitor extends AbstractModel
     /**
      * Core store config
      *
-     * @var ScopeConfigInterface
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var DateTime
+     * @var \Magento\Framework\Stdlib\DateTime
      */
     protected $dateTime;
 
     /**
-     * @var IndexerRegistry
+     * @var \Magento\Framework\Indexer\IndexerRegistry
      */
     protected $indexerRegistry;
 
@@ -90,32 +74,31 @@ class Visitor extends AbstractModel
     private $requestSafety;
 
     /**
-     * @param ModelContext $context
-     * @param Registry $registry
-     * @param SessionManagerInterface $session
-     * @param Header $httpHeader
-     * @param ScopeConfigInterface $scopeConfig
-     * @param DateTime $dateTime
-     * @param IndexerRegistry $indexerRegistry
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Framework\Session\SessionManagerInterface $session
+     * @param \Magento\Framework\HTTP\Header $httpHeader
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param \Magento\Framework\Stdlib\DateTime $dateTime
+     * @param \Magento\Framework\Indexer\IndexerRegistry $indexerRegistry
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param array $ignoredUserAgents
      * @param array $ignores
      * @param array $data
-     * @param RequestSafetyInterface|null $requestSafety
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        ModelContext $context,
-        Registry $registry,
-        SessionManagerInterface $session,
-        Header $httpHeader,
-        ScopeConfigInterface $scopeConfig,
-        DateTime $dateTime,
-        IndexerRegistry $indexerRegistry,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Session\SessionManagerInterface $session,
+        \Magento\Framework\HTTP\Header $httpHeader,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Stdlib\DateTime $dateTime,
+        \Magento\Framework\Indexer\IndexerRegistry $indexerRegistry,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $ignoredUserAgents = [],
         array $ignores = [],
         array $data = [],
@@ -139,7 +122,7 @@ class Visitor extends AbstractModel
      */
     protected function _construct()
     {
-        $this->_init(ResourceModel\Visitor::class);
+        $this->_init(\Magento\Customer\Model\ResourceModel\Visitor::class);
         $userAgent = $this->httpHeader->getHttpUserAgent();
         if ($this->ignoredUserAgents) {
             if (in_array($userAgent, $this->ignoredUserAgents)) {
@@ -152,7 +135,7 @@ class Visitor extends AbstractModel
      * Skip request logging
      *
      * @param bool $skipRequestLogging
-     * @return Visitor
+     * @return \Magento\Customer\Model\Visitor
      */
     public function setSkipRequestLogging($skipRequestLogging)
     {
@@ -161,10 +144,12 @@ class Visitor extends AbstractModel
     }
 
     /**
-     * Initialization visitor by request. Used in event "controller_action_predispatch"
+     * Initialization visitor by request
      *
-     * @param EventObserver $observer
-     * @return Visitor
+     * Used in event "controller_action_predispatch"
+     *
+     * @param   \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      */
     public function initByRequest($observer)
     {
@@ -179,13 +164,12 @@ class Visitor extends AbstractModel
             }
         }
 
-        $this->setLastVisitAt((new \DateTime())->format(DateTime::DATETIME_PHP_FORMAT));
+        $this->setLastVisitAt((new \DateTime())->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT));
 
         // prevent saving Visitor for safe methods, e.g. GET request
         if ($this->requestSafety->isSafeMethod()) {
             return $this;
         }
-
         if (!$this->getId()) {
             $this->setSessionId($this->session->getSessionId());
             $this->save();
@@ -200,22 +184,17 @@ class Visitor extends AbstractModel
      *
      * Used in event "controller_action_postdispatch"
      *
-     * @param EventObserver $observer
-     * @return Visitor
+     * @param   \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      */
     public function saveByRequest($observer)
     {
         // prevent saving Visitor for safe methods, e.g. GET request
-        if (($this->skipRequestLogging || $this->requestSafety->isSafeMethod() || $this->isModuleIgnored($observer))
-            && !$this->sessionIdHasChanged()
-        ) {
+        if ($this->skipRequestLogging || $this->requestSafety->isSafeMethod() || $this->isModuleIgnored($observer)) {
             return $this;
         }
 
         try {
-            if ($this->session->getSessionId() && $this->getSessionId() != $this->session->getSessionId()) {
-                $this->setSessionId($this->session->getSessionId());
-            }
             $this->save();
             $this->_eventManager->dispatch('visitor_activity_save', ['visitor' => $this]);
             $this->session->setVisitorData($this->getData());
@@ -226,32 +205,15 @@ class Visitor extends AbstractModel
     }
 
     /**
-     * Check if visitor session id was changed.
-     *
-     * @return bool
-     */
-    private function sessionIdHasChanged(): bool
-    {
-        $visitorData = $this->session->getVisitorData();
-        $hasChanged = false;
-
-        if (isset($visitorData['session_id'])) {
-            $hasChanged = $this->session->getSessionId() !== $visitorData['session_id'];
-        }
-
-        return $hasChanged;
-    }
-
-    /**
      * Returns true if the module is required
      *
-     * @param EventObserver $observer
+     * @param \Magento\Framework\Event\Observer $observer
      * @return bool
      */
     public function isModuleIgnored($observer)
     {
         if (is_array($this->ignores) && $observer) {
-            $curModule = $this->requestSafety->getRouteName();
+            $curModule = $observer->getEvent()->getControllerAction()->getRequest()->getRouteName();
             if (isset($this->ignores[$curModule])) {
                 return true;
             }
@@ -264,12 +226,12 @@ class Visitor extends AbstractModel
      *
      * Used in event "customer_login"
      *
-     * @param EventObserver $observer
-     * @return Visitor
+     * @param   \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      */
     public function bindCustomerLogin($observer)
     {
-        /** @var CustomerInterface $customer */
+        /** @var \Magento\Customer\Api\Data\CustomerInterface $customer */
         $customer = $observer->getEvent()->getCustomer();
         if (!$this->getCustomerId()) {
             $this->setDoCustomerLogin(true);
@@ -283,8 +245,8 @@ class Visitor extends AbstractModel
      *
      * Used in event "customer_logout"
      *
-     * @param EventObserver $observer
-     * @return Visitor
+     * @param   \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function bindCustomerLogout($observer)
@@ -298,8 +260,8 @@ class Visitor extends AbstractModel
     /**
      * Create binding of checkout quote
      *
-     * @param EventObserver $observer
-     * @return Visitor
+     * @param \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      */
     public function bindQuoteCreate($observer)
     {
@@ -315,9 +277,8 @@ class Visitor extends AbstractModel
 
     /**
      * Destroy binding of checkout quote
-     *
-     * @param EventObserver $observer
-     * @return Visitor
+     * @param \Magento\Framework\Event\Observer $observer
+     * @return  \Magento\Customer\Model\Visitor
      */
     public function bindQuoteDestroy($observer)
     {
@@ -335,10 +296,10 @@ class Visitor extends AbstractModel
      */
     public function getCleanTime()
     {
-        return self::SECONDS_24_HOURS + $this->scopeConfig->getValue(
-            SessionConfig::XML_PATH_COOKIE_LIFETIME,
-            ScopeInterface::SCOPE_STORE
-        );
+        return $this->scopeConfig->getValue(
+            \Magento\Framework\Session\Config::XML_PATH_COOKIE_LIFETIME,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) + 86400;
     }
 
     /**
@@ -359,9 +320,11 @@ class Visitor extends AbstractModel
      */
     public function getOnlineInterval()
     {
-        $configValue = (int)$this->scopeConfig->getValue(
-            static::XML_PATH_ONLINE_INTERVAL,
-            ScopeInterface::SCOPE_STORE
+        $configValue = intval(
+            $this->scopeConfig->getValue(
+                static::XML_PATH_ONLINE_INTERVAL,
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            )
         );
         return $configValue ?: static::DEFAULT_ONLINE_MINUTES_INTERVAL;
     }

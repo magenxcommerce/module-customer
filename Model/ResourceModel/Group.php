@@ -29,8 +29,8 @@ class Group extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\Abs
 
     /**
      * @param \Magento\Framework\Model\ResourceModel\Db\Context $context
-     * @param Snapshot $entitySnapshot
-     * @param RelationComposite $entityRelationComposite
+     * @param Snapshot $entitySnapshot,
+     * @param RelationComposite $entityRelationComposite,
      * @param \Magento\Customer\Api\GroupManagementInterface $groupManagement
      * @param Customer\CollectionFactory $customersFactory
      * @param string $connectionName
@@ -110,8 +110,6 @@ class Group extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\Abs
     }
 
     /**
-     * Create customers collection.
-     *
      * @return \Magento\Customer\Model\ResourceModel\Customer\Collection
      */
     protected function _createCustomersCollection()
@@ -133,7 +131,7 @@ class Group extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\Abs
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function _afterSave(\Magento\Framework\Model\AbstractModel $object)
     {

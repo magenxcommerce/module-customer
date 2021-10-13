@@ -7,20 +7,17 @@ declare(strict_types=1);
 
 namespace Magento\Customer\Test\Unit\Controller\Section;
 
-use Laminas\Http\AbstractMessage;
-use Laminas\Http\Response;
 use Magento\Customer\Controller\Section\Load;
 use Magento\Customer\CustomerData\Section\Identifier;
 use Magento\Customer\CustomerData\SectionPoolInterface;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Escaper;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use \PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Magento\Framework\App\Request\Http as HttpRequest;
 
-class LoadTest extends TestCase
+class LoadTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Load
@@ -48,7 +45,7 @@ class LoadTest extends TestCase
     private $sectionPoolMock;
 
     /**
-     * @var Escaper|MockObject
+     * @var \Magento\Framework\Escaper|MockObject
      */
     private $escaperMock;
 
@@ -62,7 +59,7 @@ class LoadTest extends TestCase
      */
     private $httpRequestMock;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->contextMock = $this->createMock(Context::class);
         $this->resultJsonFactoryMock = $this->createMock(JsonFactory::class);
@@ -86,13 +83,13 @@ class LoadTest extends TestCase
     }
 
     /**
-     * @param string $sectionNames
-     * @param bool $forceNewSectionTimestamp
-     * @param string[] $sectionNamesAsArray
-     * @param bool $forceNewTimestamp
+     * @param $sectionNames
+     * @param $updateSectionID
+     * @param $sectionNamesAsArray
+     * @param $updateIds
      * @dataProvider executeDataProvider
      */
-    public function testExecute($sectionNames, $forceNewSectionTimestamp, $sectionNamesAsArray, $forceNewTimestamp)
+    public function testExecute($sectionNames, $updateSectionID, $sectionNamesAsArray, $updateIds)
     {
         $this->resultJsonFactoryMock->expects($this->once())
             ->method('create')
@@ -106,12 +103,12 @@ class LoadTest extends TestCase
 
         $this->httpRequestMock->expects($this->exactly(2))
             ->method('getParam')
-            ->withConsecutive(['sections'], ['force_new_section_timestamp'])
-            ->willReturnOnConsecutiveCalls($sectionNames, $forceNewSectionTimestamp);
+            ->withConsecutive(['sections'], ['update_section_id'])
+            ->willReturnOnConsecutiveCalls($sectionNames, $updateSectionID);
 
         $this->sectionPoolMock->expects($this->once())
             ->method('getSectionsData')
-            ->with($sectionNamesAsArray, $forceNewTimestamp)
+            ->with($sectionNamesAsArray, $updateIds)
             ->willReturn([
                 'message' => 'some message',
                 'someKey' => 'someValue'
@@ -136,15 +133,15 @@ class LoadTest extends TestCase
         return [
             [
                 'sectionNames' => 'sectionName1,sectionName2,sectionName3',
-                'forceNewSectionTimestamp' => 'forceNewSectionTimestamp',
+                'updateSectionID' => 'updateSectionID',
                 'sectionNamesAsArray' => ['sectionName1', 'sectionName2', 'sectionName3'],
-                'forceNewTimestamp' => true
+                'updateIds' => true
             ],
             [
                 'sectionNames' => null,
-                'forceNewSectionTimestamp' => null,
+                'updateSectionID' => null,
                 'sectionNamesAsArray' => null,
-                'forceNewTimestamp' => false
+                'updateIds' => false
             ],
         ];
     }
@@ -169,8 +166,8 @@ class LoadTest extends TestCase
         $this->resultJsonMock->expects($this->once())
             ->method('setStatusHeader')
             ->with(
-                Response::STATUS_CODE_400,
-                AbstractMessage::VERSION_11,
+                \Zend\Http\Response::STATUS_CODE_400,
+                \Zend\Http\AbstractMessage::VERSION_11,
                 'Bad Request'
             );
 

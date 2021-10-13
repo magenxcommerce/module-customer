@@ -14,7 +14,6 @@ use Magento\Framework\App\ObjectManager;
 
 /**
  * Class Address
- *
  * @package Magento\Customer\Model\ResourceModel
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -32,8 +31,8 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
 
     /**
      * @param \Magento\Eav\Model\Entity\Context $context
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot
-     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite
+     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot $entitySnapshot,
+     * @param \Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite $entityRelationComposite,
      * @param \Magento\Framework\Validator\Factory $validatorFactory
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param array $data
@@ -99,9 +98,6 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
      */
     protected function _validate($address)
     {
-        if ($address->getDataByKey('should_ignore_validation')) {
-            return;
-        };
         $validator = $this->_validatorFactory->createValidator('customer_address', 'save');
 
         if (!$validator->isValid($address)) {
@@ -114,7 +110,7 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function delete($object)
     {
@@ -124,8 +120,6 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
     }
 
     /**
-     * Get instance of DeleteRelation class
-     *
      * @deprecated 101.0.0
      * @return DeleteRelation
      */
@@ -135,8 +129,6 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
     }
 
     /**
-     * Get instance of CustomerRegistry class
-     *
      * @deprecated 101.0.0
      * @return CustomerRegistry
      */
@@ -146,8 +138,6 @@ class Address extends \Magento\Eav\Model\Entity\VersionControl\AbstractEntity
     }
 
     /**
-     * After delete entity process
-     *
      * @param \Magento\Customer\Model\Address $address
      * @return $this
      */

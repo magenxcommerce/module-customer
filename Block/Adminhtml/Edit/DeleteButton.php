@@ -10,7 +10,6 @@ use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 
 /**
  * Class DeleteButton
- *
  * @package Magento\Customer\Block\Adminhtml\Edit
  */
 class DeleteButton extends GenericButton implements ButtonProviderInterface
@@ -37,8 +36,6 @@ class DeleteButton extends GenericButton implements ButtonProviderInterface
     }
 
     /**
-     * Get button data.
-     *
      * @return array
      */
     public function getButtonData()
@@ -56,15 +53,12 @@ class DeleteButton extends GenericButton implements ButtonProviderInterface
                 ],
                 'on_click' => '',
                 'sort_order' => 20,
-                'aclResource' => 'Magento_Customer::delete',
             ];
         }
         return $data;
     }
 
     /**
-     * Get delete url.
-     *
      * @return string
      */
     public function getDeleteUrl()

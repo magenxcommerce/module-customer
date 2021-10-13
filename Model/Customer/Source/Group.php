@@ -11,9 +11,6 @@ use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 
-/**
- * Group.
- */
 class Group implements GroupSourceInterface
 {
     /**

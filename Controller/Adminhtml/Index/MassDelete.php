@@ -19,13 +19,6 @@ use Magento\Framework\Controller\ResultFactory;
 class MassDelete extends AbstractMassAction implements HttpPostActionInterface
 {
     /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    const ADMIN_RESOURCE = 'Magento_Customer::delete';
-
-    /**
      * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
@@ -47,7 +40,8 @@ class MassDelete extends AbstractMassAction implements HttpPostActionInterface
     }
 
     /**
-     * @inheritdoc
+     * @param AbstractCollection $collection
+     * @return \Magento\Backend\Model\View\Result\Redirect
      */
     protected function massAction(AbstractCollection $collection)
     {
@@ -58,7 +52,7 @@ class MassDelete extends AbstractMassAction implements HttpPostActionInterface
         }
 
         if ($customersDeleted) {
-            $this->messageManager->addSuccessMessage(__('A total of %1 record(s) were deleted.', $customersDeleted));
+            $this->messageManager->addSuccess(__('A total of %1 record(s) were deleted.', $customersDeleted));
         }
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

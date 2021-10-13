@@ -42,7 +42,7 @@ class Address extends \Magento\Framework\Api\AbstractExtensibleObject implements
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getCustomAttributesCodes()
     {
@@ -327,7 +327,7 @@ class Address extends \Magento\Framework\Api\AbstractExtensibleObject implements
      */
     public function setTelephone($telephone)
     {
-        return $this->setData(self::TELEPHONE, trim($telephone));
+        return $this->setData(self::TELEPHONE, $telephone);
     }
 
     /**
@@ -452,7 +452,7 @@ class Address extends \Magento\Framework\Api\AbstractExtensibleObject implements
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @return \Magento\Customer\Api\Data\AddressExtensionInterface|null
      */
@@ -462,7 +462,7 @@ class Address extends \Magento\Framework\Api\AbstractExtensibleObject implements
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @param \Magento\Customer\Api\Data\AddressExtensionInterface $extensionAttributes
      * @return $this

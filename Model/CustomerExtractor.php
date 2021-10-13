@@ -1,9 +1,9 @@
 <?php
 /**
+ *
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-
 namespace Magento\Customer\Model;
 
 use Magento\Customer\Api\CustomerMetadataInterface;
@@ -11,9 +11,6 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\GroupManagementInterface;
 use Magento\Framework\App\RequestInterface;
 
-/**
- * Customer Extractor model.
- */
 class CustomerExtractor
 {
     /**
@@ -63,8 +60,6 @@ class CustomerExtractor
     }
 
     /**
-     * Creates a Customer object populated with the given form code and request data.
-     *
      * @param string $formCode
      * @param RequestInterface $request
      * @param array $attributeValues
@@ -85,7 +80,7 @@ class CustomerExtractor
         $customerData = $customerForm->compactData($customerData);
 
         $allowedAttributes = $customerForm->getAllowedAttributes();
-        $isGroupIdEmpty = !isset($allowedAttributes['group_id']);
+        $isGroupIdEmpty = isset($allowedAttributes['group_id']);
 
         $customerDataObject = $this->customerFactory->create();
         $this->dataObjectHelper->populateWithArray(
@@ -93,18 +88,15 @@ class CustomerExtractor
             $customerData,
             \Magento\Customer\Api\Data\CustomerInterface::class
         );
-        
         $store = $this->storeManager->getStore();
-        $storeId = $store->getId();
-        
         if ($isGroupIdEmpty) {
             $customerDataObject->setGroupId(
-                $this->customerGroupManagement->getDefaultGroup($storeId)->getId()
+                $this->customerGroupManagement->getDefaultGroup($store->getId())->getId()
             );
         }
 
         $customerDataObject->setWebsiteId($store->getWebsiteId());
-        $customerDataObject->setStoreId($storeId);
+        $customerDataObject->setStoreId($store->getId());
 
         return $customerDataObject;
     }

@@ -3,7 +3,6 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-
 namespace Magento\Customer\Model\Attribute\Data;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -14,8 +13,7 @@ use Psr\Log\LoggerInterface as PsrLogger;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface as MagentoTimezone;
 
 /**
- * Customer Address Postal/Zip Code Attribute Data Model.
- *
+ * Customer Address Postal/Zip Code Attribute Data Model
  * This Data Model Has to Be Set Up in additional EAV attribute table
  */
 class Postcode extends \Magento\Eav\Model\Attribute\Data\AbstractData
@@ -42,8 +40,7 @@ class Postcode extends \Magento\Eav\Model\Attribute\Data\AbstractData
     }
 
     /**
-     * Validate postal/zip code.
-     *
+     * Validate postal/zip code
      * Return true and skip validation if country zip code is optional
      *
      * @param array|string $value
@@ -107,7 +104,7 @@ class Postcode extends \Magento\Eav\Model\Attribute\Data\AbstractData
     }
 
     /**
-     * Return formatted attribute value from entity model
+     * Return formated attribute value from entity model
      *
      * @param string $format
      * @return string|array

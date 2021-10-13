@@ -73,7 +73,7 @@ interface EmailNotificationInterface
      * @param CustomerInterface $customer
      * @param string $type
      * @param string $backUrl
-     * @param int $storeId
+     * @param string $storeId
      * @param string $sendemailStoreId
      * @return void
      * @throws LocalizedException

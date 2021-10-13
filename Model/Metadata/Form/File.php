@@ -15,8 +15,6 @@ use Magento\Framework\File\UploaderFactory;
 use Magento\Framework\Filesystem;
 
 /**
- * Processes files that are save for customer.
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class File extends AbstractData
@@ -68,7 +66,7 @@ class File extends AbstractData
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Customer\Api\Data\AttributeMetadataInterface $attribute
      * @param \Magento\Framework\Locale\ResolverInterface $localeResolver
-     * @param string|array $value
+     * @param null $value
      * @param string $entityTypeCode
      * @param bool $isAjax
      * @param \Magento\Framework\Url\EncoderInterface $urlEncoder
@@ -103,7 +101,7 @@ class File extends AbstractData
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function extractValue(\Magento\Framework\App\RequestInterface $request)
@@ -111,7 +109,7 @@ class File extends AbstractData
         $extend = $this->_getRequestValue($request);
 
         $attrCode = $this->getAttribute()->getAttributeCode();
-        if ($this->_requestScope || !isset($_FILES[$attrCode])) {
+        if ($this->_requestScope) {
             $value = [];
             if (strpos($this->_requestScope, '/') !== false) {
                 $scopes = explode('/', $this->_requestScope);
@@ -162,7 +160,8 @@ class File extends AbstractData
     }
 
     /**
-     * Validate file by attribute validate rules. Returns array of errors.
+     * Validate file by attribute validate rules
+     * Return array of errors
      *
      * @param array $value
      * @return string[]
@@ -233,7 +232,7 @@ class File extends AbstractData
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -274,7 +273,7 @@ class File extends AbstractData
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @return ImageContentInterface|array|string|null
      */
@@ -359,7 +358,7 @@ class File extends AbstractData
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function restoreValue($value)
     {
@@ -367,7 +366,7 @@ class File extends AbstractData
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function outputValue($format = \Magento\Customer\Model\Metadata\ElementFactory::OUTPUT_FORMAT_TEXT)
     {

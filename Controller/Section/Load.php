@@ -59,7 +59,7 @@ class Load extends \Magento\Framework\App\Action\Action implements HttpGetAction
     }
 
     /**
-     * @inheritdoc
+     * @return \Magento\Framework\Controller\Result\Json
      */
     public function execute()
     {
@@ -71,15 +71,15 @@ class Load extends \Magento\Framework\App\Action\Action implements HttpGetAction
             $sectionNames = $this->getRequest()->getParam('sections');
             $sectionNames = $sectionNames ? array_unique(\explode(',', $sectionNames)) : null;
 
-            $forceNewSectionTimestamp = $this->getRequest()->getParam('force_new_section_timestamp');
-            if ('false' === $forceNewSectionTimestamp) {
-                $forceNewSectionTimestamp = false;
+            $updateSectionId = $this->getRequest()->getParam('update_section_id');
+            if ('false' === $updateSectionId) {
+                $updateSectionId = false;
             }
-            $response = $this->sectionPool->getSectionsData($sectionNames, (bool)$forceNewSectionTimestamp);
+            $response = $this->sectionPool->getSectionsData($sectionNames, (bool)$updateSectionId);
         } catch (\Exception $e) {
             $resultJson->setStatusHeader(
-                \Laminas\Http\Response::STATUS_CODE_400,
-                \Laminas\Http\AbstractMessage::VERSION_11,
+                \Zend\Http\Response::STATUS_CODE_400,
+                \Zend\Http\AbstractMessage::VERSION_11,
                 'Bad Request'
             );
             $response = ['message' => $this->escaper->escapeHtml($e->getMessage())];

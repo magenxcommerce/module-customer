@@ -3,66 +3,49 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Test\Unit\Model;
 
-use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Api\Data\CustomerInterfaceFactory;
-use Magento\Customer\Api\Data\GroupInterface;
-use Magento\Customer\Api\GroupManagementInterface;
 use Magento\Customer\Model\CustomerExtractor;
-use Magento\Customer\Model\Metadata\Form;
-use Magento\Customer\Model\Metadata\FormFactory;
-use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\App\RequestInterface;
-use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
-/**
- * Unit test CustomerExtractorTest
- */
-class CustomerExtractorTest extends TestCase
+class CustomerExtractorTest extends \PHPUnit\Framework\TestCase
 {
     /** @var CustomerExtractor */
     protected $customerExtractor;
 
-    /** @var FormFactory|MockObject */
+    /** @var \Magento\Customer\Model\Metadata\FormFactory|\PHPUnit_Framework_MockObject_MockObject */
     protected $formFactory;
 
-    /** @var CustomerInterfaceFactory|MockObject */
+    /** @var \Magento\Customer\Api\Data\CustomerInterfaceFactory|\PHPUnit_Framework_MockObject_MockObject */
     protected $customerFactory;
 
-    /** @var StoreManagerInterface|MockObject */
+    /** @var \Magento\Store\Model\StoreManagerInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $storeManager;
 
-    /** @var GroupManagementInterface|MockObject */
+    /** @var \Magento\Customer\Api\GroupManagementInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $customerGroupManagement;
 
-    /** @var DataObjectHelper|MockObject */
+    /** @var \Magento\Framework\Api\DataObjectHelper|\PHPUnit_Framework_MockObject_MockObject */
     protected $dataObjectHelper;
 
-    /** @var RequestInterface|MockObject */
+    /** @var \Magento\Framework\App\RequestInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $request;
 
-    /** @var Form|MockObject */
+    /** @var \Magento\Customer\Model\Metadata\Form|\PHPUnit_Framework_MockObject_MockObject */
     protected $customerForm;
 
-    /** @var CustomerInterface|MockObject */
+    /** @var \Magento\Customer\Api\Data\CustomerInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $customerData;
 
-    /** @var StoreInterface|MockObject */
+    /** @var \Magento\Store\Api\Data\StoreInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $store;
 
-    /** @var GroupInterface|MockObject */
+    /** @var \Magento\Customer\Api\Data\GroupInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $customerGroup;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->formFactory = $this->getMockForAbstractClass(
-            FormFactory::class,
+            \Magento\Customer\Model\Metadata\FormFactory::class,
             [],
             '',
             false,
@@ -71,7 +54,7 @@ class CustomerExtractorTest extends TestCase
             ['create']
         );
         $this->customerFactory = $this->getMockForAbstractClass(
-            CustomerInterfaceFactory::class,
+            \Magento\Customer\Api\Data\CustomerInterfaceFactory::class,
             [],
             '',
             false,
@@ -80,34 +63,34 @@ class CustomerExtractorTest extends TestCase
             ['create']
         );
         $this->storeManager = $this->getMockForAbstractClass(
-            StoreManagerInterface::class,
+            \Magento\Store\Model\StoreManagerInterface::class,
             [],
             '',
             false
         );
         $this->customerGroupManagement = $this->getMockForAbstractClass(
-            GroupManagementInterface::class,
+            \Magento\Customer\Api\GroupManagementInterface::class,
             [],
             '',
             false
         );
-        $this->dataObjectHelper = $this->createMock(DataObjectHelper::class);
-        $this->request = $this->getMockForAbstractClass(RequestInterface::class, [], '', false);
-        $this->customerForm = $this->createMock(Form::class);
+        $this->dataObjectHelper = $this->createMock(\Magento\Framework\Api\DataObjectHelper::class);
+        $this->request = $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class, [], '', false);
+        $this->customerForm = $this->createMock(\Magento\Customer\Model\Metadata\Form::class);
         $this->customerData = $this->getMockForAbstractClass(
-            CustomerInterface::class,
+            \Magento\Customer\Api\Data\CustomerInterface::class,
             [],
             '',
             false
         );
         $this->store = $this->getMockForAbstractClass(
-            StoreInterface::class,
+            \Magento\Store\Api\Data\StoreInterface::class,
             [],
             '',
             false
         );
         $this->customerGroup = $this->getMockForAbstractClass(
-            GroupInterface::class,
+            \Magento\Customer\Api\Data\GroupInterface::class,
             [],
             '',
             false
@@ -149,14 +132,24 @@ class CustomerExtractorTest extends TestCase
             ->willReturn($this->customerData);
         $this->dataObjectHelper->expects($this->once())
             ->method('populateWithArray')
-            ->with($this->customerData, $customerData, CustomerInterface::class)
+            ->with($this->customerData, $customerData, \Magento\Customer\Api\Data\CustomerInterface::class)
             ->willReturn($this->customerData);
         $this->storeManager->expects($this->once())
             ->method('getStore')
             ->willReturn($this->store);
-        $this->store->expects($this->once())
+        $this->store->expects($this->exactly(2))
             ->method('getId')
             ->willReturn(1);
+        $this->customerGroupManagement->expects($this->once())
+            ->method('getDefaultGroup')
+            ->with(1)
+            ->willReturn($this->customerGroup);
+        $this->customerGroup->expects($this->once())
+            ->method('getId')
+            ->willReturn(1);
+        $this->customerData->expects($this->once())
+            ->method('setGroupId')
+            ->with(1);
         $this->store->expects($this->once())
             ->method('getWebsiteId')
             ->willReturn(1);

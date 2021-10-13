@@ -15,7 +15,6 @@ use Magento\Framework\View\LayoutInterface;
 
 /**
  * Class CurrentCustomer
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class CurrentCustomer
 {

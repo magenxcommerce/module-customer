@@ -3,79 +3,57 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Test\Unit\Ui\Component\Listing\Column;
 
-use Magento\Customer\Api\Data\ValidationRuleInterface;
 use Magento\Customer\Ui\Component\Listing\Column\ValidationRules;
-use Magento\Framework\DataObject;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use Magento\Customer\Api\Data\ValidationRuleInterface;
 
-class ValidationRulesTest extends TestCase
+class ValidationRulesTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ValidationRules */
     protected $validationRules;
 
-    /** @var ValidationRuleInterface|MockObject */
+    /** @var ValidationRuleInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $validationRule;
 
-    protected function setUp(): void
+    protected function setUp()
     {
-        $this->validationRule = $this->getMockBuilder(ValidationRuleInterface::class)
+        $this->validationRules = $this->getMockBuilder(
+            \Magento\Customer\Ui\Component\Listing\Column\ValidationRules::class
+        )
             ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+            ->getMock();
+
+        $this->validationRule = $this->getMockBuilder(\Magento\Customer\Api\Data\ValidationRuleInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->validationRules = new ValidationRules();
     }
 
-    /**
-     * Tests input validation rules
-     *
-     * @param String $validationRule - provided input validation rules
-     * @param String $validationClass - expected input validation class
-     * @dataProvider validationRulesDataProvider
-     */
-    public function testGetValidationRules(String $validationRule, String $validationClass): void
+    public function testGetValidationRules()
     {
         $expectsRules = [
             'required-entry' => true,
-            $validationClass => true,
+            'validate-number' => true,
         ];
-        $this->validationRule->method('getName')
+        $this->validationRule->expects($this->atLeastOnce())
+            ->method('getName')
             ->willReturn('input_validation');
+        $this->validationRule->expects($this->atLeastOnce())
+            ->method('getValue')
+            ->willReturn('numeric');
 
-        $this->validationRule->method('getValue')
-            ->willReturn($validationRule);
-
-        self::assertEquals(
+        $this->assertEquals(
             $expectsRules,
             $this->validationRules->getValidationRules(
                 true,
                 [
                     $this->validationRule,
-                    new DataObject(),
+                    new \Magento\Framework\DataObject(),
                 ]
             )
         );
-    }
-
-    /**
-     * Provides possible validation rules.
-     *
-     * @return array
-     */
-    public function validationRulesDataProvider(): array
-    {
-        return [
-            ['alpha', 'validate-alpha'],
-            ['numeric', 'validate-number'],
-            ['alphanumeric', 'validate-alphanum'],
-            ['alphanum-with-spaces', 'validate-alphanum-with-spaces'],
-            ['url', 'validate-url'],
-            ['email', 'validate-email']
-        ];
     }
 
     public function testGetValidationRulesWithOnlyRequiredRule()

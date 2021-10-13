@@ -71,14 +71,13 @@ class Cart extends \Magento\Backend\Block\Widget\Grid\Extended
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function _construct()
     {
         parent::_construct();
         $this->setId('customer_view_cart_grid');
-        $this->setDefaultSort('added_at');
-        $this->setDefaultDir('desc');
+        $this->setDefaultSort('added_at', 'desc');
         $this->setSortable(false);
         $this->setPagerVisibility(false);
         $this->setFilterVisibility(false);
@@ -95,7 +94,7 @@ class Cart extends \Magento\Backend\Block\Widget\Grid\Extended
         $quote = $this->getQuote();
 
         if ($quote) {
-            $collection = $quote->getItemsCollection(true);
+            $collection = $quote->getItemsCollection(false);
         } else {
             $collection = $this->_dataCollectionFactory->create();
         }
@@ -107,7 +106,7 @@ class Cart extends \Magento\Backend\Block\Widget\Grid\Extended
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function _prepareColumns()
     {
@@ -145,7 +144,7 @@ class Cart extends \Magento\Backend\Block\Widget\Grid\Extended
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRowUrl($row)
     {
@@ -153,7 +152,7 @@ class Cart extends \Magento\Backend\Block\Widget\Grid\Extended
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getHeadersVisibility()
     {

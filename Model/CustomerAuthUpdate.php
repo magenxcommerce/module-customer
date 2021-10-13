@@ -6,43 +6,31 @@
 
 namespace Magento\Customer\Model;
 
-use Magento\Customer\Model\ResourceModel\Customer as CustomerResourceModel;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Exception\NoSuchEntityException;
-
 /**
  * Customer Authentication update model.
  */
 class CustomerAuthUpdate
 {
     /**
-     * @var CustomerRegistry
+     * @var \Magento\Customer\Model\CustomerRegistry
      */
     protected $customerRegistry;
 
     /**
-     * @var CustomerResourceModel
+     * @var \Magento\Customer\Model\ResourceModel\Customer
      */
     protected $customerResourceModel;
 
     /**
-     * @var Customer
-     */
-    private $customerModel;
-
-    /**
-     * @param CustomerRegistry $customerRegistry
-     * @param CustomerResourceModel $customerResourceModel
-     * @param Customer|null $customerModel
+     * @param \Magento\Customer\Model\CustomerRegistry $customerRegistry
+     * @param \Magento\Customer\Model\ResourceModel\Customer $customerResourceModel
      */
     public function __construct(
-        CustomerRegistry $customerRegistry,
-        CustomerResourceModel $customerResourceModel,
-        Customer $customerModel = null
+        \Magento\Customer\Model\CustomerRegistry $customerRegistry,
+        \Magento\Customer\Model\ResourceModel\Customer $customerResourceModel
     ) {
         $this->customerRegistry = $customerRegistry;
         $this->customerResourceModel = $customerResourceModel;
-        $this->customerModel = $customerModel ?: ObjectManager::getInstance()->get(Customer::class);
     }
 
     /**
@@ -50,29 +38,20 @@ class CustomerAuthUpdate
      *
      * @param int $customerId
      * @return $this
-     * @throws NoSuchEntityException
      */
     public function saveAuth($customerId)
     {
         $customerSecure = $this->customerRegistry->retrieveSecureData($customerId);
-
-        $this->customerResourceModel->load($this->customerModel, $customerId);
-        $currentLockExpiresVal = $this->customerModel->getData('lock_expires');
-        $newLockExpiresVal = $customerSecure->getData('lock_expires');
 
         $this->customerResourceModel->getConnection()->update(
             $this->customerResourceModel->getTable('customer_entity'),
             [
                 'failures_num' => $customerSecure->getData('failures_num'),
                 'first_failure' => $customerSecure->getData('first_failure'),
-                'lock_expires' => $newLockExpiresVal,
+                'lock_expires' => $customerSecure->getData('lock_expires'),
             ],
             $this->customerResourceModel->getConnection()->quoteInto('entity_id = ?', $customerId)
         );
-
-        if ($currentLockExpiresVal !== $newLockExpiresVal) {
-            $this->customerModel->reindex();
-        }
 
         return $this;
     }

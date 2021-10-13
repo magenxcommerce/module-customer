@@ -7,7 +7,6 @@
 
 namespace Magento\Customer\Controller\Adminhtml\Customer;
 
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Integration\Api\CustomerTokenServiceInterface;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -26,15 +25,8 @@ use Magento\Framework\Api\DataObjectHelper;
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
-class InvalidateToken extends \Magento\Customer\Controller\Adminhtml\Index implements HttpGetActionInterface
+class InvalidateToken extends \Magento\Customer\Controller\Adminhtml\Index
 {
-    /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    const ADMIN_RESOURCE = 'Magento_Customer::invalidate_tokens';
-
     /**
      * @var CustomerTokenServiceInterface
      */
@@ -139,14 +131,14 @@ class InvalidateToken extends \Magento\Customer\Controller\Adminhtml\Index imple
         if ($customerId = $this->getRequest()->getParam('customer_id')) {
             try {
                 $this->tokenService->revokeCustomerAccessToken($customerId);
-                $this->messageManager->addSuccessMessage(__('You have revoked the customer\'s tokens.'));
+                $this->messageManager->addSuccess(__('You have revoked the customer\'s tokens.'));
                 $resultRedirect->setPath('customer/index/edit', ['id' => $customerId, '_current' => true]);
             } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+                $this->messageManager->addError($e->getMessage());
                 $resultRedirect->setPath('customer/index/edit', ['id' => $customerId, '_current' => true]);
             }
         } else {
-            $this->messageManager->addErrorMessage(__('We can\'t find a customer to revoke.'));
+            $this->messageManager->addError(__('We can\'t find a customer to revoke.'));
             $resultRedirect->setPath('customer/index/index');
         }
         return $resultRedirect;

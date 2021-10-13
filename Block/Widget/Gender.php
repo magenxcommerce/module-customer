@@ -64,7 +64,6 @@ class Gender extends AbstractWidget
 
     /**
      * Check if gender attribute enabled in system
-     *
      * @return bool
      */
     public function isEnabled()
@@ -74,25 +73,11 @@ class Gender extends AbstractWidget
 
     /**
      * Check if gender attribute marked as required
-     *
      * @return bool
      */
     public function isRequired()
     {
         return $this->_getAttribute('gender') ? (bool)$this->_getAttribute('gender')->isRequired() : false;
-    }
-
-    /**
-     * Retrieve store attribute label
-     *
-     * @param string $attributeCode
-     *
-     * @return string
-     */
-    public function getStoreLabel($attributeCode)
-    {
-        $attribute = $this->_getAttribute($attributeCode);
-        return $attribute ? __($attribute->getStoreLabel()) : '';
     }
 
     /**
@@ -107,7 +92,6 @@ class Gender extends AbstractWidget
 
     /**
      * Returns options from gender attribute
-     *
      * @return OptionInterface[]
      */
     public function getGenderOptions()

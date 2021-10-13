@@ -54,8 +54,6 @@ class Region implements \Magento\Framework\Data\Form\Element\Renderer\RendererIn
     }
 
     /**
-     * Render element
-     *
      * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -82,7 +80,7 @@ class Region implements \Magento\Framework\Data\Form\Element\Renderer\RendererIn
             $regionCollection = self::$_regionCollections[$countryId];
         }
 
-        $regionId = (int)$element->getForm()->getElement('region_id')->getValue();
+        $regionId = intval($element->getForm()->getElement('region_id')->getValue());
 
         $htmlAttributes = $element->getHtmlAttributes();
         foreach ($htmlAttributes as $key => $attribute) {

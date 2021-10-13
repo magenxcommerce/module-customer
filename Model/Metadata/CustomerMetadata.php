@@ -34,29 +34,19 @@ class CustomerMetadata implements CustomerMetadataInterface
     private $attributeMetadataDataProvider;
 
     /**
-     * List of system attributes which should be available to the clients.
-     *
-     * @var string[]
-     */
-    private $systemAttributes;
-
-    /**
      * @param AttributeMetadataConverter $attributeMetadataConverter
      * @param AttributeMetadataDataProvider $attributeMetadataDataProvider
-     * @param string[] $systemAttributes
      */
     public function __construct(
         AttributeMetadataConverter $attributeMetadataConverter,
-        AttributeMetadataDataProvider $attributeMetadataDataProvider,
-        array $systemAttributes = []
+        AttributeMetadataDataProvider $attributeMetadataDataProvider
     ) {
         $this->attributeMetadataConverter = $attributeMetadataConverter;
         $this->attributeMetadataDataProvider = $attributeMetadataDataProvider;
-        $this->systemAttributes = $systemAttributes;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAttributes($formCode)
     {
@@ -77,7 +67,7 @@ class CustomerMetadata implements CustomerMetadataInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAttributeMetadata($attributeCode)
     {
@@ -102,7 +92,7 @@ class CustomerMetadata implements CustomerMetadataInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAllAttributesMetadata()
     {
@@ -126,7 +116,7 @@ class CustomerMetadata implements CustomerMetadataInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getCustomAttributesMetadata($dataObjectClassName = self::DATA_INTERFACE_NAME)
     {
@@ -144,10 +134,9 @@ class CustomerMetadata implements CustomerMetadataInterface
             $isDataObjectMethod = isset($this->customerDataObjectMethods['get' . $camelCaseKey])
                 || isset($this->customerDataObjectMethods['is' . $camelCaseKey]);
 
+            /** Even though disable_auto_group_change is system attribute, it should be available to the clients */
             if (!$isDataObjectMethod
-                && (!$attributeMetadata->isSystem()
-                    || in_array($attributeCode, $this->systemAttributes)
-                )
+                && (!$attributeMetadata->isSystem() || $attributeCode == 'disable_auto_group_change')
             ) {
                 $customAttributes[] = $attributeMetadata;
             }

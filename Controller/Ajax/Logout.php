@@ -7,20 +7,18 @@
 
 namespace Magento\Customer\Controller\Ajax;
 
-use Magento\Framework\App\Action\HttpGetActionInterface;
-
 /**
  * Logout controller
  *
  * @method \Magento\Framework\App\RequestInterface getRequest()
  * @method \Magento\Framework\App\Response\Http getResponse()
  */
-class Logout extends \Magento\Framework\App\Action\Action implements HttpGetActionInterface
+class Logout extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var \Magento\Framework\Session\Generic
      */
-    protected $customerSession;
+    protected $session;
 
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
