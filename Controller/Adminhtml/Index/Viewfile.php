@@ -14,8 +14,6 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\AddressInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterfaceFactory;
 use Magento\Customer\Model\Address\Mapper;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\DataObjectFactory;
@@ -132,7 +130,7 @@ class Viewfile extends \Magento\Customer\Controller\Adminhtml\Index
     /**
      * Customer view file action
      *
-     * @return ResultInterface|ResponseInterface|void
+     * @return \Magento\Framework\Controller\ResultInterface|void
      * @throws NotFoundException
      */
     public function execute()
@@ -183,7 +181,7 @@ class Viewfile extends \Magento\Customer\Controller\Adminhtml\Index
         } else {
             // phpcs:ignore Magento2.Functions.DiscouragedFunction
             $name = pathinfo($path, PATHINFO_BASENAME);
-            return $this->_fileFactory->create(
+            $this->_fileFactory->create(
                 $name,
                 ['type' => 'filename', 'value' => $fileName],
                 DirectoryList::MEDIA

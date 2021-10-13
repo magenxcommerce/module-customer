@@ -20,12 +20,16 @@
         </annotations>
         <before>
             <magentoCLI command="config:set customer/create_account/viv_disable_auto_group_assign_default 1" stepKey="setConfigDefaultIsYes"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCache"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
             <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin1"/>
         </before>
         <after>
             <magentoCLI command="config:set customer/create_account/viv_disable_auto_group_assign_default 0" stepKey="setConfigDefaultIsNo"/>
-            <comment userInput="Adding the comment to replace CliCacheFlushActionGroup action group ('cache:flush' command) for preserving Backward Compatibility" stepKey="flushCache"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
             <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
         </after>
 

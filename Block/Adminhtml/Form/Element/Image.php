@@ -73,7 +73,7 @@ class Image extends \Magento\Customer\Block\Adminhtml\Form\Element\File
     {
         return $this->_adminhtmlData->getUrl(
             'customer/index/viewfile',
-            ['file' => $this->urlEncoder->encode($this->getValue())]
+            ['image' => $this->urlEncoder->encode($this->getValue())]
         );
     }
 }

@@ -14,7 +14,6 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\File\UploaderFactory;
 use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\Io\File as IoFile;
 
 /**
  * Processes files that are save for customer.
@@ -64,11 +63,6 @@ class File extends AbstractData
     protected $fileProcessorFactory;
 
     /**
-     * @var IoFile|null
-     */
-    private $ioFile;
-
-    /**
      * Constructor
      *
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate
@@ -83,7 +77,6 @@ class File extends AbstractData
      * @param Filesystem $fileSystem
      * @param UploaderFactory $uploaderFactory
      * @param \Magento\Customer\Model\FileProcessorFactory|null $fileProcessorFactory
-     * @param IoFile|null $ioFile
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -98,10 +91,8 @@ class File extends AbstractData
         \Magento\MediaStorage\Model\File\Validator\NotProtectedExtension $fileValidator,
         Filesystem $fileSystem,
         UploaderFactory $uploaderFactory,
-        \Magento\Customer\Model\FileProcessorFactory $fileProcessorFactory = null,
-        IoFile $ioFile = null
+        \Magento\Customer\Model\FileProcessorFactory $fileProcessorFactory = null
     ) {
-        $value = $this->prepareFileValue($value);
         parent::__construct($localeDate, $logger, $attribute, $localeResolver, $value, $entityTypeCode, $isAjax);
         $this->urlEncoder = $urlEncoder;
         $this->_fileValidator = $fileValidator;
@@ -110,8 +101,6 @@ class File extends AbstractData
         $this->fileProcessorFactory = $fileProcessorFactory ?: ObjectManager::getInstance()
             ->get(FileProcessorFactory::class);
         $this->fileProcessor = $this->fileProcessorFactory->create(['entityTypeCode' => $this->_entityTypeCode]);
-        $this->ioFile = $ioFile ?: ObjectManager::getInstance()
-            ->get(IoFile::class);
     }
 
     /**
@@ -193,7 +182,7 @@ class File extends AbstractData
     {
         $label = $value['name'];
         $rules = $this->getAttribute()->getValidationRules();
-        $extension = $this->ioFile->getPathInfo($value['name'])['extension'];
+        $extension = $this->getFileExtension($value['name']);
         $fileExtensions = ArrayObjectSearch::getArrayElementByName(
             $rules,
             'file_extensions'
@@ -232,6 +221,17 @@ class File extends AbstractData
     }
 
     /**
+     * Get file extension from the file if it exists, otherwise, get from filename.
+     *
+     * @param string $fileName
+     * @return string
+     */
+    private function getFileExtension(string $fileName): string
+    {
+        return pathinfo($fileName, PATHINFO_EXTENSION);
+    }
+
+    /**
      * Helper function that checks if the file was uploaded.
      *
      * This helper function is needed for testing.
@@ -247,7 +247,7 @@ class File extends AbstractData
         }
 
         // This case is required for file uploader UI component
-        $temporaryFile = FileProcessor::TMP_DIR . '/' . $this->ioFile->getPathInfo($filename)['basename'];
+        $temporaryFile = FileProcessor::TMP_DIR . '/' . $this->fileProcessor->getStat($filename)['basename'];
         if ($this->fileProcessor->isExist($temporaryFile)) {
             return true;
         }
@@ -304,14 +304,11 @@ class File extends AbstractData
     public function compactValue($value)
     {
         if ($this->getIsAjaxRequest()) {
-            return '';
+            return $this;
         }
 
         // Remove outdated file (in the case of file uploader UI component)
-        if (!empty($this->_value)
-            && (!empty($value['delete'])
-                || ($this->_entityTypeCode == 'customer' && empty($value)))
-        ) {
+        if (empty($value) && !empty($this->_value)) {
             $this->fileProcessor->removeUploadedFile($this->_value);
             return $value;
         }
@@ -428,20 +425,5 @@ class File extends AbstractData
     protected function getFileProcessor()
     {
         return $this->fileProcessor;
-    }
-
-    /**
-     * Prepare File value.
-     *
-     * @param array|string $value
-     * @return array|string
-     */
-    private function prepareFileValue($value)
-    {
-        if (is_array($value) && isset($value['value'])) {
-            $value = $value['value'];
-        }
-
-        return $value;
     }
 }

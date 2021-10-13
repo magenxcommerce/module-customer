@@ -11,8 +11,6 @@ use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\Session;
 use Magento\Backend\Model\View\Result\Forward;
 use Magento\Backend\Model\View\Result\ForwardFactory;
-use Magento\Customer\Api\Data\GroupExtension;
-use Magento\Customer\Api\Data\GroupExtensionInterfaceFactory;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Customer\Api\Data\GroupInterfaceFactory;
 use Magento\Customer\Api\GroupRepositoryInterface;
@@ -66,6 +64,9 @@ class SaveTest extends TestCase
     /** @var Redirect|MockObject */
     protected $resultRedirect;
 
+    /** @var GroupInterface|MockObject */
+    protected $customerGroup;
+
     /** @var ManagerInterface|MockObject */
     protected $messageManager;
 
@@ -77,12 +78,6 @@ class SaveTest extends TestCase
 
     /** @var Session|MockObject */
     protected $session;
-
-    /** @var GroupExtensionInterfaceFactory $groupExtensionInterfaceFactory|MockObject */
-    private $groupExtensionInterfaceFactory;
-
-    /** @var GroupExtension/MockObject */
-    private $groupExtension;
 
     protected function setUp(): void
     {
@@ -114,36 +109,30 @@ class SaveTest extends TestCase
         $this->resultRedirect = $this->getMockBuilder(Redirect::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $this->customerGroup = $this->getMockBuilder(GroupInterface::class)
+            ->getMockForAbstractClass();
         $this->messageManager = $this->getMockBuilder(ManagerInterface::class)
             ->getMockForAbstractClass();
         $this->resultForward = $this->getMockBuilder(Forward::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->group = $this->getMockBuilder(GroupInterface::class)
-            ->setMethods(['setExtensionAttributes'])
             ->getMockForAbstractClass();
         $this->session = $this->getMockBuilder(Session::class)
             ->disableOriginalConstructor()
             ->setMethods(['setCustomerGroupData'])
             ->getMock();
-        $this->groupExtensionInterfaceFactory = $this->getMockBuilder(GroupExtensionInterfaceFactory::class)
-            ->setMethods(['create'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $this->groupExtension = $this->getMockBuilder(GroupExtension::class)
-            ->disableOriginalConstructor()
-            ->getMock();
 
-        $this->contextMock->expects(self::once())
+        $this->contextMock->expects($this->once())
             ->method('getMessageManager')
             ->willReturn($this->messageManager);
-        $this->contextMock->expects(self::once())
+        $this->contextMock->expects($this->once())
             ->method('getRequest')
             ->willReturn($this->request);
-        $this->contextMock->expects(self::once())
+        $this->contextMock->expects($this->once())
             ->method('getResultRedirectFactory')
             ->willReturn($this->resultRedirectFactory);
-        $this->contextMock->expects(self::once())
+        $this->contextMock->expects($this->once())
             ->method('getSession')
             ->willReturn($this->session);
 
@@ -154,37 +143,24 @@ class SaveTest extends TestCase
             $this->groupInterfaceFactoryMock,
             $this->forwardFactoryMock,
             $this->pageFactoryMock,
-            $this->dataObjectProcessorMock,
-            $this->groupExtensionInterfaceFactory
+            $this->dataObjectProcessorMock
         );
     }
 
-    public function testExecuteWithTaxClassAndException(): void
+    public function testExecuteWithTaxClassAndException()
     {
         $taxClass = '3';
         $groupId = 0;
         $code = 'NOT LOGGED IN';
 
-        $this->request->method('getParam')
-            ->willReturnMap(
-                [
-                    ['tax_class', null, $taxClass],
-                    ['id', null, $groupId],
-                    ['code', null, null],
-                    ['customer_group_excluded_websites', null, '']
-                ]
-            );
-        $this->groupExtensionInterfaceFactory->expects(self::once())
-            ->method('create')
-            ->willReturn($this->groupExtension);
-        $this->groupExtension->expects(self::once())
-            ->method('setExcludeWebsiteIds')
-            ->with([])
-            ->willReturnSelf();
-        $this->group->expects(self::once())
-            ->method('setExtensionAttributes')
-            ->with($this->groupExtension)
-            ->willReturnSelf();
+        $this->request->expects($this->exactly(3))
+            ->method('getParam')
+            ->withConsecutive(
+                ['tax_class'],
+                ['id'],
+                ['code']
+            )
+            ->willReturnOnConsecutiveCalls($taxClass, $groupId, null);
         $this->resultRedirectFactory->expects($this->once())
             ->method('create')
             ->willReturn($this->resultRedirect);
@@ -192,55 +168,55 @@ class SaveTest extends TestCase
             ->method('getById')
             ->with($groupId)
             ->willReturn($this->group);
-        $this->group->expects(self::once())
+        $this->group->expects($this->once())
             ->method('getCode')
             ->willReturn($code);
-        $this->group->expects(self::once())
+        $this->group->expects($this->once())
             ->method('setCode')
             ->with($code);
-        $this->group->expects(self::once())
+        $this->group->expects($this->once())
             ->method('setTaxClassId')
             ->with($taxClass);
-        $this->groupRepositoryMock->expects(self::once())
+        $this->groupRepositoryMock->expects($this->once())
             ->method('save')
             ->with($this->group);
-        $this->messageManager->expects(self::once())
+        $this->messageManager->expects($this->once())
             ->method('addSuccessMessage')
             ->with(__('You saved the customer group.'));
         $exception = new \Exception('Exception');
-        $this->resultRedirect->expects(self::at(0))
+        $this->resultRedirect->expects($this->at(0))
             ->method('setPath')
             ->with('customer/group')
             ->willThrowException($exception);
-        $this->messageManager->expects(self::once())
+        $this->messageManager->expects($this->once())
             ->method('addErrorMessage')
             ->with('Exception');
-        $this->dataObjectProcessorMock->expects(self::once())
+        $this->dataObjectProcessorMock->expects($this->once())
             ->method('buildOutputDataArray')
             ->with($this->group, GroupInterface::class)
             ->willReturn(['code' => $code]);
-        $this->session->expects(self::once())
+        $this->session->expects($this->once())
             ->method('setCustomerGroupData')
             ->with(['customer_group_code' => $code]);
-        $this->resultRedirect->expects(self::at(1))
+        $this->resultRedirect->expects($this->at(1))
             ->method('setPath')
             ->with('customer/group/edit', ['id' => $groupId]);
-        self::assertSame($this->resultRedirect, $this->controller->execute());
+        $this->assertSame($this->resultRedirect, $this->controller->execute());
     }
 
-    public function testExecuteWithoutTaxClass(): void
+    public function testExecuteWithoutTaxClass()
     {
-        $this->request->expects(self::once())
+        $this->request->expects($this->once())
             ->method('getParam')
             ->with('tax_class')
             ->willReturn(null);
-        $this->forwardFactoryMock->expects(self::once())
+        $this->forwardFactoryMock->expects($this->once())
             ->method('create')
             ->willReturn($this->resultForward);
-        $this->resultForward->expects(self::once())
+        $this->resultForward->expects($this->once())
             ->method('forward')
             ->with('new')
             ->willReturnSelf();
-        self::assertSame($this->resultForward, $this->controller->execute());
+        $this->assertSame($this->resultForward, $this->controller->execute());
     }
 }

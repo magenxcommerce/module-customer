@@ -152,7 +152,7 @@ class CreatePost extends AbstractAccount implements CsrfAwareActionInterface, Ht
     /**
      * @var ScopeConfigInterface
      */
-    protected $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @param Context $context

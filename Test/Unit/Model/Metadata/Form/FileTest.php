@@ -373,7 +373,7 @@ class FileTest extends AbstractFormTestCase
             ]
         );
 
-        $this->assertSame('', $model->compactValue('aValue'));
+        $this->assertSame($model, $model->compactValue('aValue'));
     }
 
     public function testCompactValueNoDelete()
@@ -388,7 +388,7 @@ class FileTest extends AbstractFormTestCase
             ]
         );
 
-        $this->fileProcessorMock->expects($this->any())
+        $this->fileProcessorMock->expects($this->once())
             ->method('removeUploadedFile')
             ->with('value')
             ->willReturnSelf();
@@ -403,11 +403,11 @@ class FileTest extends AbstractFormTestCase
         $mediaDirMock = $this->getMockForAbstractClass(
             \Magento\Framework\Filesystem\Directory\WriteInterface::class
         );
-        $mediaDirMock->expects($this->any())
+        $mediaDirMock->expects($this->once())
             ->method('delete')
             ->with(self::ENTITY_TYPE . '/' . 'value');
 
-        $this->fileSystemMock->expects($this->any())
+        $this->fileSystemMock->expects($this->once())
             ->method('getDirectoryWrite')
             ->with(DirectoryList::MEDIA)
             ->will($this->returnValue($mediaDirMock));
@@ -420,7 +420,7 @@ class FileTest extends AbstractFormTestCase
             ]
         );
 
-        $this->assertIsArray($model->compactValue(['delete' => true]));
+        $this->assertSame('', $model->compactValue(['delete' => true]));
     }
 
     public function testCompactValueTmpFile()
@@ -620,7 +620,7 @@ class FileTest extends AbstractFormTestCase
             ]
         );
 
-        $this->fileProcessorMock->expects($this->any())
+        $this->fileProcessorMock->expects($this->once())
             ->method('removeUploadedFile')
             ->with($value)
             ->willReturnSelf();

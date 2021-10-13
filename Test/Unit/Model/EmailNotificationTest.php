@@ -20,7 +20,6 @@ use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Mail\TransportInterface;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager as ObjectManagerHelper;
-use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
@@ -114,10 +113,6 @@ class EmailNotificationTest extends TestCase
      * @var SenderResolverInterface|MockObject
      */
     private $senderResolverMock;
-    /**
-     * @var Emulation|MockObject
-     */
-    private $emulation;
 
     /**
      * @inheritdoc
@@ -149,7 +144,6 @@ class EmailNotificationTest extends TestCase
             ->setMethods(['resolve'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
-        $this->emulation = $this->createMock(Emulation::class);
 
         $objectManager = new ObjectManagerHelper($this);
 
@@ -163,7 +157,6 @@ class EmailNotificationTest extends TestCase
                 'dataProcessor' => $this->dataProcessorMock,
                 'scopeConfig' => $this->scopeConfigMock,
                 'senderResolver' => $this->senderResolverMock,
-                'emulation' => $this->emulation,
             ]
         );
     }
@@ -343,14 +336,6 @@ class EmailNotificationTest extends TestCase
         $transport->expects(clone $expects)
             ->method('sendMessage');
 
-        $this->emulation->expects(clone $expects)
-            ->method('startEnvironmentEmulation')
-            ->willReturnSelf();
-
-        $this->emulation->expects(clone $expects)
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
-
         $this->model->credentialsChanged($savedCustomer, $oldEmail, $isPasswordChanged);
     }
 
@@ -513,14 +498,6 @@ class EmailNotificationTest extends TestCase
             ['customer' => $this->customerSecureMock, 'store' => $this->storeMock]
         );
 
-        $this->emulation->expects($this->once())
-            ->method('startEnvironmentEmulation')
-            ->willReturnSelf();
-
-        $this->emulation->expects($this->once())
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
-
         $this->model->passwordReminder($customerMock);
     }
 
@@ -618,14 +595,6 @@ class EmailNotificationTest extends TestCase
             self::STUB_CUSTOMER_NAME,
             ['customer' => $this->customerSecureMock, 'store' => $this->storeMock]
         );
-        $this->emulation->expects($this->once())
-            ->method('startEnvironmentEmulation')
-            ->willReturnSelf();
-
-        $this->emulation->expects($this->once())
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
-
         $this->model->passwordReminder($customer);
     }
 
@@ -721,13 +690,6 @@ class EmailNotificationTest extends TestCase
             self::STUB_CUSTOMER_NAME,
             ['customer' => $this->customerSecureMock, 'store' => $this->storeMock]
         );
-        $this->emulation->expects($this->once())
-            ->method('startEnvironmentEmulation')
-            ->willReturnSelf();
-
-        $this->emulation->expects($this->once())
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
 
         $this->model->passwordResetConfirmation($customerMock);
     }
@@ -823,13 +785,6 @@ class EmailNotificationTest extends TestCase
             self::STUB_CUSTOMER_NAME,
             ['customer' => $this->customerSecureMock, 'back_url' => '', 'store' => $this->storeMock]
         );
-        $this->emulation->expects($this->once())
-            ->method('startEnvironmentEmulation')
-            ->willReturnSelf();
-
-        $this->emulation->expects($this->once())
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
 
         $this->model->newAccount(
             $customer,

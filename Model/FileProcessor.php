@@ -29,10 +29,6 @@ class FileProcessor
      */
     const TMP_DIR = 'tmp';
 
-    private const CUSTOMER_FILE_URL_PATH = 'customer/index/viewfile';
-
-    private const CUSTOMER_ADDRESS_FILE_URL_PATH = 'customer/address/viewfile';
-
     /**
      * @var WriteInterface
      */
@@ -69,16 +65,6 @@ class FileProcessor
     private $mime;
 
     /**
-     * @var string
-     */
-    private $customerFileUrlPath;
-
-    /**
-     * @var string
-     */
-    private $customerAddressFileUrlPath;
-
-    /**
      * @param Filesystem $filesystem
      * @param UploaderFactory $uploaderFactory
      * @param UrlInterface $urlBuilder
@@ -86,8 +72,6 @@ class FileProcessor
      * @param string $entityTypeCode
      * @param Mime $mime
      * @param array $allowedExtensions
-     * @param string $customerFileUrlPath
-     * @param string $customerAddressFileUrlPath
      */
     public function __construct(
         Filesystem $filesystem,
@@ -96,9 +80,7 @@ class FileProcessor
         EncoderInterface $urlEncoder,
         $entityTypeCode,
         Mime $mime,
-        array $allowedExtensions = [],
-        string $customerFileUrlPath = self::CUSTOMER_FILE_URL_PATH,
-        string $customerAddressFileUrlPath = self::CUSTOMER_ADDRESS_FILE_URL_PATH
+        array $allowedExtensions = []
     ) {
         $this->mediaDirectory = $filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $this->uploaderFactory = $uploaderFactory;
@@ -107,8 +89,6 @@ class FileProcessor
         $this->entityTypeCode = $entityTypeCode;
         $this->mime = $mime;
         $this->allowedExtensions = $allowedExtensions;
-        $this->customerFileUrlPath = $customerFileUrlPath;
-        $this->customerAddressFileUrlPath = $customerAddressFileUrlPath;
     }
 
     /**
@@ -178,15 +158,14 @@ class FileProcessor
         $viewUrl = '';
 
         if ($this->entityTypeCode == AddressMetadataInterface::ENTITY_TYPE_ADDRESS) {
-            $viewUrl = $this->urlBuilder->getUrl(
-                $this->customerAddressFileUrlPath,
-                [$type => $this->urlEncoder->encode(ltrim($filePath, '/'))]
-            );
+            $filePath = $this->entityTypeCode . '/' . ltrim($filePath, '/');
+            $viewUrl = $this->urlBuilder->getBaseUrl(['_type' => UrlInterface::URL_TYPE_MEDIA])
+                . $this->mediaDirectory->getRelativePath($filePath);
         }
 
         if ($this->entityTypeCode == CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER) {
             $viewUrl = $this->urlBuilder->getUrl(
-                $this->customerFileUrlPath,
+                'customer/index/viewfile',
                 [$type => $this->urlEncoder->encode(ltrim($filePath, '/'))]
             );
         }

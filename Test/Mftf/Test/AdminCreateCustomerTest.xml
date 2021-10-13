@@ -21,7 +21,9 @@
         </annotations>
 
         <before>
-            <comment userInput="Adding the comment to replace CliIndexerReindexActionGroup action group ('indexer:reindex' commands) for preserving Backward Compatibility" stepKey="reindexCustomerGrid"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindexCustomerGrid">
+                <argument name="indices" value="customer_grid"/>
+            </actionGroup>
         </before>
 
         <after>
@@ -40,7 +42,9 @@
         <fillField userInput="{{CustomerEntityOne.email}}" selector="{{AdminCustomerAccountInformationSection.email}}" stepKey="fillEmail"/>
         <click selector="{{AdminCustomerMainActionsSection.saveButton}}" stepKey="saveCustomer"/>
         <seeElement selector="{{AdminCustomerMessagesSection.successMessage}}" stepKey="assertSuccessMessage"/>
-        <comment userInput="Adding the comment to replace CliIndexerReindexActionGroup action group ('indexer:reindex' commands) for preserving Backward Compatibility" stepKey="reindex"/>
+        <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+            <argument name="indices" value=""/>
+        </actionGroup>
         <actionGroup ref="ReloadPageActionGroup" stepKey="reloadPage"/>
         <comment userInput="Replacing reload action and preserve Backward Compatibility" stepKey="waitForLoad2"/>
 

@@ -55,7 +55,6 @@ use Magento\Framework\Stdlib\StringUtils as StringHelper;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface as PsrLogger;
-use Magento\Framework\AuthorizationInterface;
 
 /**
  * Handle various customer account actions
@@ -70,55 +69,55 @@ class AccountManagement implements AccountManagementInterface
     /**
      * Configuration paths for create account email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
      */
     const XML_PATH_REGISTER_EMAIL_TEMPLATE = 'customer/create_account/email_template';
 
     /**
      * Configuration paths for register no password email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_REGISTER_NO_PASSWORD_EMAIL_TEMPLATE
      */
     const XML_PATH_REGISTER_NO_PASSWORD_EMAIL_TEMPLATE = 'customer/create_account/email_no_password_template';
 
     /**
      * Configuration paths for remind email identity
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_REGISTER_EMAIL_IDENTITY
      */
     const XML_PATH_REGISTER_EMAIL_IDENTITY = 'customer/create_account/email_identity';
 
     /**
      * Configuration paths for remind email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_REMIND_EMAIL_TEMPLATE
      */
     const XML_PATH_REMIND_EMAIL_TEMPLATE = 'customer/password/remind_email_template';
 
     /**
      * Configuration paths for forgot email email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_FORGOT_EMAIL_TEMPLATE
      */
     const XML_PATH_FORGOT_EMAIL_TEMPLATE = 'customer/password/forgot_email_template';
 
     /**
      * Configuration paths for forgot email identity
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_FORGOT_EMAIL_IDENTITY
      */
     const XML_PATH_FORGOT_EMAIL_IDENTITY = 'customer/password/forgot_email_identity';
 
     /**
      * Configuration paths for account confirmation required
      *
-     * @deprecated Get rid of Helpers in Password Security Management
+     * @deprecated get rid of Helpers in Password Security Management.
      * @see AccountConfirmation::XML_PATH_IS_CONFIRM
      */
     const XML_PATH_IS_CONFIRM = 'customer/create_account/confirm';
@@ -126,48 +125,48 @@ class AccountManagement implements AccountManagementInterface
     /**
      * Configuration paths for account confirmation email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_CONFIRM_EMAIL_TEMPLATE
      */
     const XML_PATH_CONFIRM_EMAIL_TEMPLATE = 'customer/create_account/email_confirmation_template';
 
     /**
      * Configuration paths for confirmation confirmed email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_CONFIRMED_EMAIL_TEMPLATE
      */
     const XML_PATH_CONFIRMED_EMAIL_TEMPLATE = 'customer/create_account/email_confirmed_template';
 
     /**
      * Constants for the type of new account email to be sent
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED
      */
     const NEW_ACCOUNT_EMAIL_REGISTERED = 'registered';
 
     /**
      * Welcome email, when password setting is required
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED_NO_PASSWORD
      */
     const NEW_ACCOUNT_EMAIL_REGISTERED_NO_PASSWORD = 'registered_no_password';
 
     /**
      * Welcome email, when confirmation is enabled
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotificationInterface::NEW_ACCOUNT_EMAIL_CONFIRMATION
      */
     const NEW_ACCOUNT_EMAIL_CONFIRMATION = 'confirmation';
 
     /**
      * Confirmation email, when account is confirmed
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see EmailNotificationInterface::NEW_ACCOUNT_EMAIL_REGISTERED
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotificationInterface::NEW_ACCOUNT_EMAIL_CONFIRMED
      */
     const NEW_ACCOUNT_EMAIL_CONFIRMED = 'confirmed';
 
@@ -193,25 +192,18 @@ class AccountManagement implements AccountManagementInterface
     /**
      * Configuration path to customer reset password email template
      *
-     * @deprecated Get rid of Helpers in Password Security Management
-     * @see Magento/Customer/Model/EmailNotification::XML_PATH_REGISTER_EMAIL_TEMPLATE
+     * @deprecated get rid of Helpers in Password Security Management.
+     * @see \Magento\Customer\Model\EmailNotification::XML_PATH_RESET_PASSWORD_TEMPLATE
      */
     const XML_PATH_RESET_PASSWORD_TEMPLATE = 'customer/password/reset_password_template';
 
     /**
      * Minimum password length
      *
-     * @deprecated Get rid of Helpers in Password Security Management
+     * @deprecated get rid of Helpers in Password Security Management.
      * @see \Magento\Customer\Model\AccountManagement::XML_PATH_MINIMUM_PASSWORD_LENGTH
      */
     const MIN_PASSWORD_LENGTH = 6;
-
-    /**
-     * Authorization level of a basic admin session
-     *
-     * @see _isAllowed()
-     */
-    const ADMIN_RESOURCE = 'Magento_Customer::manage';
 
     /**
      * @var CustomerFactory
@@ -384,11 +376,6 @@ class AccountManagement implements AccountManagementInterface
     private $sessionCleaner;
 
     /**
-     * @var AuthorizationInterface
-     */
-    private $authorization;
-
-    /**
      * @param CustomerFactory $customerFactory
      * @param ManagerInterface $eventManager
      * @param StoreManagerInterface $storeManager
@@ -423,7 +410,6 @@ class AccountManagement implements AccountManagementInterface
      * @param GetCustomerByToken|null $getByToken
      * @param AllowedCountries|null $allowedCountriesReader
      * @param SessionCleanerInterface|null $sessionCleaner
-     * @param AuthorizationInterface|null $authorization
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -464,8 +450,7 @@ class AccountManagement implements AccountManagementInterface
         AddressRegistry $addressRegistry = null,
         GetCustomerByToken $getByToken = null,
         AllowedCountries $allowedCountriesReader = null,
-        SessionCleanerInterface $sessionCleaner = null,
-        AuthorizationInterface $authorization = null
+        SessionCleanerInterface $sessionCleaner = null
     ) {
         $this->customerFactory = $customerFactory;
         $this->eventManager = $eventManager;
@@ -505,7 +490,6 @@ class AccountManagement implements AccountManagementInterface
         $this->allowedCountriesReader = $allowedCountriesReader
             ?: $objectManager->get(AllowedCountries::class);
         $this->sessionCleaner = $sessionCleaner ?? $objectManager->get(SessionCleanerInterface::class);
-        $this->authorization = $authorization ?? $objectManager->get(AuthorizationInterface::class);
     }
 
     /**
@@ -852,11 +836,6 @@ class AccountManagement implements AccountManagementInterface
      */
     public function createAccount(CustomerInterface $customer, $password = null, $redirectUrl = '')
     {
-        $groupId = $customer->getGroupId();
-        if (isset($groupId) && !$this->authorization->isAllowed(self::ADMIN_RESOURCE)) {
-            $customer->setGroupId(null);
-        }
-
         if ($password !== null) {
             $this->checkPasswordStrength($password);
             $customerEmail = $customer->getEmail();

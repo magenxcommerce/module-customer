@@ -6,8 +6,7 @@
 namespace Magento\Customer\Api\Data;
 
 /**
- * Customer entity interface for API handling.
- *
+ * Customer interface.
  * @api
  * @since 100.0.2
  */
@@ -162,10 +161,7 @@ interface CustomerInterface extends \Magento\Framework\Api\CustomAttributesDataI
     /**
      * Get date of birth
      *
-     * @return string|null In keeping with current security and privacy best practices, be sure you are aware of any
-     * potential legal and security risks associated with the storage of customers’ full date of birth
-     * (month, day, year) along with other personal identifiers (e.g., full name) before collecting or processing
-     * such data.
+     * @return string|null
      */
     public function getDob();
 

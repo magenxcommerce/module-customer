@@ -22,11 +22,12 @@ class DeleteRelationTest extends TestCase
     /** @var  DeleteRelation */
     protected $relation;
 
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
+        $this->customerFactoryMock = $this->createPartialMock(
+            CustomerFactory::class,
+            ['create']
+        );
         $this->relation = (new ObjectManagerHelper($this))->getObject(
             DeleteRelation::class
         );
