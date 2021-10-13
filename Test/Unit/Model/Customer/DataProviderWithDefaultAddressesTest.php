@@ -1,76 +1,68 @@
 <?php
-
+declare(strict_types=1);
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Test\Unit\Model\Customer;
 
-use Magento\Customer\Model\Address;
 use Magento\Customer\Model\AttributeMetadataResolver;
-use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\Customer\DataProviderWithDefaultAddresses;
 use Magento\Customer\Model\FileUploaderDataResolver;
-use Magento\Customer\Model\ResourceModel\Customer\Collection as CustomerCollection;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
-use Magento\Directory\Model\CountryFactory;
+use Magento\Customer\Model\ResourceModel\Customer\Collection as CustomerCollection;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Eav\Model\Entity\Type;
-use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Ui\Component\Form\Field;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test for class \Magento\Customer\Model\Customer\DataProviderWithDefaultAddresses
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class DataProviderWithDefaultAddressesTest extends TestCase
+class DataProviderWithDefaultAddressesTest extends \PHPUnit\Framework\TestCase
 {
     private const ATTRIBUTE_CODE = 'test-code';
 
     /**
-     * @var Config|MockObject
+     * @var Config|\PHPUnit_Framework_MockObject_MockObject
      */
     private $eavConfigMock;
 
     /**
-     * @var CustomerCollectionFactory|MockObject
+     * @var CustomerCollectionFactory|\PHPUnit_Framework_MockObject_MockObject
      */
     private $customerCollectionFactoryMock;
 
     /**
-     * @var SessionManagerInterface|MockObject
+     * @var \Magento\Framework\Session\SessionManagerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $sessionMock;
 
     /**
-     * @var CountryFactory|MockObject
+     * @var \Magento\Directory\Model\CountryFactory|\PHPUnit_Framework_MockObject_MockObject
      */
     private $countryFactoryMock;
 
     /**
-     * @var Customer|MockObject
+     * @var \Magento\Customer\Model\Customer|\PHPUnit_Framework_MockObject_MockObject
      */
     private $customerMock;
 
     /**
-     * @var CustomerCollection|MockObject
+     * @var CustomerCollection|\PHPUnit_Framework_MockObject_MockObject
      */
     private $customerCollectionMock;
 
     /**
-     * @var FileUploaderDataResolver|MockObject
+     * @var FileUploaderDataResolver|\PHPUnit_Framework_MockObject_MockObject
      */
     private $fileUploaderDataResolver;
 
     /**
-     * @var AttributeMetadataResolver|MockObject
+     * @var AttributeMetadataResolver|\PHPUnit_Framework_MockObject_MockObject
      */
     private $attributeMetadataResolver;
 
@@ -79,18 +71,16 @@ class DataProviderWithDefaultAddressesTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->eavConfigMock = $this->getMockBuilder(Config::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->eavConfigMock = $this->getMockBuilder(Config::class)->disableOriginalConstructor()->getMock();
         $this->customerCollectionFactoryMock = $this->createPartialMock(CustomerCollectionFactory::class, ['create']);
-        $this->sessionMock = $this->getMockBuilder(SessionManagerInterface::class)
+        $this->sessionMock = $this->getMockBuilder(\Magento\Framework\Session\SessionManagerInterface::class)
             ->setMethods(['getCustomerFormData', 'unsCustomerFormData'])
             ->getMockForAbstractClass();
-        $this->countryFactoryMock = $this->getMockBuilder(CountryFactory::class)
+        $this->countryFactoryMock = $this->getMockBuilder(\Magento\Directory\Model\CountryFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create', 'loadByCode', 'getName'])
             ->getMock();
-        $this->customerMock = $this->getMockBuilder(Customer::class)
+        $this->customerMock = $this->getMockBuilder(\Magento\Customer\Model\Customer::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->customerCollectionMock = $this->getMockBuilder(CustomerCollection::class)
@@ -257,11 +247,11 @@ class DataProviderWithDefaultAddressesTest extends TestCase
 
     /**
      * @param array $customerAttributes
-     * @return Type|MockObject
+     * @return Type|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getTypeCustomerMock($customerAttributes = [])
     {
-        $typeCustomerMock = $this->getMockBuilder(Type::class)
+        $typeCustomerMock = $this->getMockBuilder(\Magento\Eav\Model\Entity\Type::class)
             ->disableOriginalConstructor()
             ->getMock();
         $attributesCollection = !empty($customerAttributes) ? $customerAttributes : $this->getAttributeMock();
@@ -280,7 +270,7 @@ class DataProviderWithDefaultAddressesTest extends TestCase
 
     /**
      * @param array $options
-     * @return AbstractAttribute[]|MockObject[]
+     * @return AbstractAttribute[]|\PHPUnit_Framework_MockObject_MockObject[]
      */
     protected function getAttributeMock($options = []): array
     {
@@ -349,9 +339,10 @@ class DataProviderWithDefaultAddressesTest extends TestCase
             'default_shipping' => 2,
             'password_hash' => 'password_hash',
             'rp_token' => 'rp_token',
+            'confirmation' => 'confirmation',
         ];
 
-        $address = $this->getMockBuilder(Address::class)
+        $address = $this->getMockBuilder(\Magento\Customer\Model\Address::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->customerCollectionMock->expects($this->once())->method('getItems')->willReturn([$this->customerMock]);

@@ -19,7 +19,6 @@ use Magento\Ui\Component\Form\Element\Multiline;
 
 /**
  * Dataprovider of customer addresses for customer address grid.
- *
  * @property \Magento\Customer\Model\ResourceModel\Address\Collection $collection
  */
 class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
@@ -223,7 +222,8 @@ class DataProvider extends \Magento\Ui\DataProvider\AbstractDataProvider
             $meta[$attribute->getAttributeCode()] = $this->attributeMetadataResolver->getAttributesMeta(
                 $attribute,
                 $entityType,
-                $this->allowToShowHiddenAttributes
+                $this->allowToShowHiddenAttributes,
+                $this->getRequestFieldName()
             );
         }
         $this->attributeMetadataResolver->processWebsiteMeta($meta);

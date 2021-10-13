@@ -39,6 +39,7 @@ class DataProviderWithDefaultAddresses extends \Magento\Ui\DataProvider\Abstract
     private static $forbiddenCustomerFields = [
         'password_hash',
         'rp_token',
+        'confirmation',
     ];
 
     /**
@@ -165,8 +166,8 @@ class DataProviderWithDefaultAddresses extends \Magento\Ui\DataProvider\Abstract
             if (isset($addressData['street']) && !\is_array($address['street'])) {
                 $addressData['street'] = explode("\n", $addressData['street']);
             }
-            $countryId = $addressData['country_id'] ?? null;
-            $addressData['country'] = $this->countryFactory->create()->loadByCode($countryId)->getName();
+            $addressData['country'] = $this->countryFactory->create()
+                ->loadByCode($addressData['country_id'])->getName();
         }
 
         return $addressData;
@@ -188,7 +189,8 @@ class DataProviderWithDefaultAddresses extends \Magento\Ui\DataProvider\Abstract
             $meta[$attribute->getAttributeCode()] = $this->attributeMetadataResolver->getAttributesMeta(
                 $attribute,
                 $entityType,
-                $this->allowToShowHiddenAttributes
+                $this->allowToShowHiddenAttributes,
+                $this->getRequestFieldName()
             );
         }
         $this->attributeMetadataResolver->processWebsiteMeta($meta);

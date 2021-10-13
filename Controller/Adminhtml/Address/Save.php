@@ -161,7 +161,7 @@ class Save extends Action implements HttpPostActionInterface
         $resultJson = $this->resultJsonFactory->create();
         $resultJson->setData(
             [
-                'messages' => $message,
+                'message' => $message,
                 'error' => $error,
                 'data' => [
                     'entity_id' => $addressId
