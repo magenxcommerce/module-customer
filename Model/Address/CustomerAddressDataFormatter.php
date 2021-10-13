@@ -81,7 +81,6 @@ class CustomerAddressDataFormatter
             'inline' => $this->getCustomerAddressInline($customerAddress),
             'custom_attributes' => [],
             'extension_attributes' => $customerAddress->getExtensionAttributes(),
-            'vat_id' => $customerAddress->getVatId()
         ];
 
         if ($customerAddress->getCustomAttributes()) {

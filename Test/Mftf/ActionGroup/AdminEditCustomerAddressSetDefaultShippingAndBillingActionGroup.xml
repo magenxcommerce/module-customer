@@ -5,14 +5,9 @@
   * See COPYING.txt for license details.
   */
 -->
-
 <actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
-    <actionGroup name="AdminEditCustomerAddressSetDefaultShippingAndBillingActionGroup" extends="AdminEditCustomerAddressesFromActionGroup">
-        <annotations>
-            <description>EXTENDS: AdminEditCustomerAddressesFrom. Removes 'selectState' and 'fillZipCode'.</description>
-        </annotations>
-
+    <actionGroup name="AdminEditCustomerAddressSetDefaultShippingAndBilling" extends="AdminEditCustomerAddressesFrom">
         <click selector="{{AdminEditCustomerAddressesSection.defaultBillingAddressButton}}" stepKey="setDefaultBilling" before="setDefaultShipping"/>
         <click selector="{{AdminEditCustomerAddressesSection.defaultShippingAddressButton}}" stepKey="setDefaultShipping" before="fillPrefixName"/>
     </actionGroup>
