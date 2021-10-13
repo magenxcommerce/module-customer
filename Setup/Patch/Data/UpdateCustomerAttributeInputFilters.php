@@ -3,17 +3,18 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
 
 namespace Magento\Customer\Setup\Patch\Data;
 
 use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchVersionInterface;
 
 /**
- * Update attribute input filters for customer
+ * Class UpdateCustomerAttributeInputFilters
+ * @package Magento\Customer\Setup\Patch
  */
 class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVersionInterface
 {
@@ -28,6 +29,7 @@ class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVe
     private $customerSetupFactory;
 
     /**
+     * UpdateCustomerAttributeInputFilters constructor.
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param CustomerSetupFactory $customerSetupFactory
      */
@@ -40,7 +42,7 @@ class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function apply()
     {
@@ -70,12 +72,10 @@ class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVe
             ],
         ];
         $customerSetup->upgradeAttributes($entityAttributes);
-
-        return $this;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getDependencies()
     {
@@ -85,7 +85,7 @@ class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getVersion()
     {
@@ -93,7 +93,7 @@ class UpdateCustomerAttributeInputFilters implements DataPatchInterface, PatchVe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAliases()
     {

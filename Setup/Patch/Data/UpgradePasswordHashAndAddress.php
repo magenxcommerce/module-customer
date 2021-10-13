@@ -3,18 +3,19 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
 
 namespace Magento\Customer\Setup\Patch\Data;
 
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchVersionInterface;
 
 /**
- * Update passwordHash and address
+ * Class UpgradePasswordHashAndAddress
+ * @package Magento\Customer\Setup\Patch
  */
 class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionInterface
 {
@@ -29,6 +30,7 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
     private $customerSetupFactory;
 
     /**
+     * UpgradePasswordHashAndAddress constructor.
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param CustomerSetupFactory $customerSetupFactory
      */
@@ -41,7 +43,7 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function apply()
     {
@@ -56,13 +58,9 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
         ];
         $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
         $customerSetup->upgradeAttributes($entityAttributes);
-
-        return $this;
     }
 
     /**
-     * Password hash upgrade
-     *
      * @return void
      */
     private function upgradeHash()
@@ -95,7 +93,7 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getDependencies()
     {
@@ -105,7 +103,7 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getVersion()
     {
@@ -113,7 +111,7 @@ class UpgradePasswordHashAndAddress implements DataPatchInterface, PatchVersionI
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAliases()
     {

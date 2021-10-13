@@ -121,27 +121,14 @@ class CustomerExtractorTest extends TestCase
         );
     }
 
-    /**
-     * @param int $storeId
-     * @param int $websiteId
-     * @param array $customerData
-     * @dataProvider getDataProvider
-     * @return void
-     */
-    public function testExtract(int $storeId, int $websiteId, array $customerData)
+    public function testExtract()
     {
-        $this->initializeExpectation($storeId, $websiteId, $customerData);
+        $customerData = [
+            'firstname' => 'firstname',
+            'lastname' => 'firstname',
+            'email' => 'email.example.com',
+        ];
 
-        $this->assertSame($this->customerData, $this->customerExtractor->extract('form-code', $this->request));
-    }
-
-    /**
-     * @param int $storeId
-     * @param int $websiteId
-     * @param array $customerData
-     */
-    private function initializeExpectation(int $storeId, int $websiteId, array $customerData): void
-    {
         $this->formFactory->expects($this->once())
             ->method('create')
             ->with('customer', 'form-code')
@@ -169,54 +156,17 @@ class CustomerExtractorTest extends TestCase
             ->willReturn($this->store);
         $this->store->expects($this->once())
             ->method('getId')
-            ->willReturn($storeId);
+            ->willReturn(1);
         $this->store->expects($this->once())
             ->method('getWebsiteId')
-            ->willReturn($websiteId);
+            ->willReturn(1);
         $this->customerData->expects($this->once())
             ->method('setWebsiteId')
-            ->with($websiteId);
+            ->with(1);
         $this->customerData->expects($this->once())
             ->method('setStoreId')
-            ->with($storeId);
-    }
+            ->with(1);
 
-    /**
-     * @return array
-     */
-    public function getDataProvider()
-    {
-        return [
-            'extract data when group id is null' => [
-                1,
-                1,
-                [
-                    'firstname' => 'firstname-1',
-                    'lastname' => 'firstname-1',
-                    'email' => 'email-1.example.com',
-                    'group_id' => null
-                ]
-            ],
-            'extract data when group id is not null and default' => [
-                1,
-                2,
-                [
-                    'firstname' => 'firstname-2',
-                    'lastname' => 'firstname-3',
-                    'email' => 'email-2.example.com',
-                    'group_id' => 1
-                ]
-            ],
-            'extract data when group id is different from default' => [
-                1,
-                1,
-                [
-                    'firstname' => 'firstname-3',
-                    'lastname' => 'firstname-3',
-                    'email' => 'email-3.example.com',
-                    'group_id' => 2
-                ]
-            ],
-        ];
+        $this->assertSame($this->customerData, $this->customerExtractor->extract('form-code', $this->request));
     }
 }

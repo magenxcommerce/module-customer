@@ -25,7 +25,6 @@ use Magento\Store\Model\ScopeInterface;
 /**
  * Customer Observer Model
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class AfterAddressSaveObserver implements ObserverInterface
 {
@@ -128,7 +127,6 @@ class AfterAddressSaveObserver implements ObserverInterface
         if (!$this->_customerAddress->isVatValidationEnabled($customer->getStore())
             || $this->_coreRegistry->registry(self::VIV_PROCESSED_FLAG)
             || !$this->_canProcessAddress($customerAddress)
-            || $customerAddress->getShouldIgnoreValidation()
         ) {
             return;
         }

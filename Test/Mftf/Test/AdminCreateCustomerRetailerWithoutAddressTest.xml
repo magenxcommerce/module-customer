@@ -29,7 +29,8 @@
         </after>
 
         <!--Filter the customer From grid-->
-        <actionGroup ref="AdminNavigateNewCustomerActionGroup" stepKey="navigateToNewCustomerPage"/>
+        <amOnPage url="{{AdminNewCustomerPage.url}}" stepKey="navigateToNewCustomerPage"/>
+        <waitForPageLoad time="30" stepKey="waitToCustomerPageLoad"/>
         <selectOption selector="{{AdminCustomerAccountInformationSection.group}}" userInput="Retailer" stepKey="fillCustomerGroup"/>
         <fillField userInput="{{CustomerEntityOne.firstname}}" selector="{{AdminCustomerAccountInformationSection.firstName}}" stepKey="fillFirstName"/>
         <fillField userInput="{{CustomerEntityOne.lastname}}" selector="{{AdminCustomerAccountInformationSection.lastName}}" stepKey="fillLastName"/>

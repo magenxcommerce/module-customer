@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
@@ -74,17 +75,13 @@ class DataProviderWithDefaultAddressesTest extends TestCase
     private $attributeMetadataResolver;
 
     /**
-     * @var DataProviderWithDefaultAddresses
-     */
-    private $dataProvider;
-
-    /**
-     * @inheritdoc
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @return void
      */
     protected function setUp(): void
     {
-        $this->eavConfigMock = $this->getMockBuilder(Config::class)->disableOriginalConstructor()->getMock();
+        $this->eavConfigMock = $this->getMockBuilder(Config::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->customerCollectionFactoryMock = $this->createPartialMock(CustomerCollectionFactory::class, ['create']);
         $this->sessionMock = $this->getMockBuilder(SessionManagerInterface::class)
             ->setMethods(['getCustomerFormData', 'unsCustomerFormData'])
@@ -164,21 +161,20 @@ class DataProviderWithDefaultAddressesTest extends TestCase
                     ],
                 ]
             );
-
         $helper = new ObjectManager($this);
         $this->dataProvider = $helper->getObject(
             DataProviderWithDefaultAddresses::class,
             [
-                'name' => 'test-name',
-                'primaryFieldName' => 'primary-field-name',
-                'requestFieldName' => 'request-field-name',
+                'name'                      => 'test-name',
+                'primaryFieldName'          => 'primary-field-name',
+                'requestFieldName'          => 'request-field-name',
                 'customerCollectionFactory' => $this->customerCollectionFactoryMock,
-                'eavConfig' => $this->eavConfigMock,
-                'countryFactory' => $this->countryFactoryMock,
-                'session' => $this->sessionMock,
-                'fileUploaderDataResolver' => $this->fileUploaderDataResolver,
+                'eavConfig'                 => $this->eavConfigMock,
+                'countryFactory'            => $this->countryFactoryMock,
+                'session'                   => $this->sessionMock,
+                'fileUploaderDataResolver'  => $this->fileUploaderDataResolver,
                 'attributeMetadataResolver' => $this->attributeMetadataResolver,
-                'allowToShowHiddenAttributes' => true,
+                true
             ]
         );
     }
@@ -347,7 +343,6 @@ class DataProviderWithDefaultAddressesTest extends TestCase
      */
     public function testGetData(): void
     {
-        $customerId = 1;
         $customerData = [
             'email' => 'test@test.ua',
             'default_billing' => 2,
@@ -355,35 +350,18 @@ class DataProviderWithDefaultAddressesTest extends TestCase
             'password_hash' => 'password_hash',
             'rp_token' => 'rp_token',
         ];
-        $addressData = [
-            'country_id' => 'code',
-            'entity_id' => 2,
-            'parent_id' => $customerId,
-            'street' => "line 1\nline 2",
-            'region' => 'Region Name',
-        ];
-        $localeRegionName = 'Locale Region Name';
 
-        $address = $this->createMock(Address::class);
-        $address->method('getData')->willReturn($addressData);
-        $address->method('getRegion')->willReturn($localeRegionName);
+        $address = $this->getMockBuilder(Address::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->customerCollectionMock->expects($this->once())->method('getItems')->willReturn([$this->customerMock]);
+        $this->customerMock->expects($this->once())->method('getData')->willReturn($customerData);
+        $this->customerMock->expects($this->atLeastOnce())->method('getId')->willReturn(1);
 
-        $this->customerCollectionMock->method('getItems')->willReturn([$this->customerMock]);
-        $this->customerMock->method('getDefaultBillingAddress')->willReturn($address);
-        $this->customerMock->method('getDefaultShippingAddress')->willReturn(false);
-        $this->customerMock->method('getData')->willReturn($customerData);
-        $this->customerMock->method('getId')->willReturn($customerId);
-
-        $this->countryFactoryMock->expects($this->once())
-            ->method('create')
-            ->willReturnSelf();
-        $this->countryFactoryMock->expects($this->once())
-            ->method('loadByCode')
-            ->with('code')
-            ->willReturnSelf();
-        $this->countryFactoryMock->expects($this->once())
-            ->method('getName')
-            ->willReturn('Ukraine');
+        $this->customerMock->expects($this->once())->method('getDefaultBillingAddress')->willReturn($address);
+        $this->countryFactoryMock->expects($this->once())->method('create')->willReturnSelf();
+        $this->countryFactoryMock->expects($this->once())->method('loadByCode')->willReturnSelf();
+        $this->countryFactoryMock->expects($this->once())->method('getName')->willReturn('Ukraine');
 
         $this->sessionMock->expects($this->once())
             ->method('getCustomerFormData')
@@ -391,7 +369,7 @@ class DataProviderWithDefaultAddressesTest extends TestCase
 
         $this->assertEquals(
             [
-                $customerId => [
+                1 => [
                     'customer' => [
                         'email' => 'test@test.ua',
                         'default_billing' => 2,
@@ -399,14 +377,9 @@ class DataProviderWithDefaultAddressesTest extends TestCase
                     ],
                     'default_billing_address' => [
                         'country' => 'Ukraine',
-                        'country_id' => 'code',
-                        'entity_id' => 2,
-                        'parent_id' => $customerId,
-                        'street' => ['line 1', 'line 2'],
-                        'region' => $localeRegionName,
                     ],
                     'default_shipping_address' => [],
-                    'customer_id' => $customerId
+                    'customer_id' => 1
                 ]
             ],
             $this->dataProvider->getData()

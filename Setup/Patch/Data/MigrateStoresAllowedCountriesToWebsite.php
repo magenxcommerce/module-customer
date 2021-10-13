@@ -3,11 +3,9 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
 
 namespace Magento\Customer\Setup\Patch\Data;
 
-use Exception;
 use Magento\Directory\Model\AllowedCountries;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -36,14 +34,15 @@ class MigrateStoresAllowedCountriesToWebsite implements DataPatchInterface, Patc
     private $allowedCountries;
 
     /**
+     * MigrateStoresAllowedCountriesToWebsite constructor.
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param StoreManagerInterface $storeManager
      * @param AllowedCountries $allowedCountries
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
-        StoreManagerInterface $storeManager,
-        AllowedCountries $allowedCountries
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Directory\Model\AllowedCountries $allowedCountries
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->storeManager = $storeManager;
@@ -52,8 +51,6 @@ class MigrateStoresAllowedCountriesToWebsite implements DataPatchInterface, Patc
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function apply()
     {
@@ -63,12 +60,10 @@ class MigrateStoresAllowedCountriesToWebsite implements DataPatchInterface, Patc
         try {
             $this->migrateStoresAllowedCountriesToWebsite();
             $this->moduleDataSetup->getConnection()->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->moduleDataSetup->getConnection()->rollBack();
             throw $e;
         }
-
-        return $this;
     }
 
     /**

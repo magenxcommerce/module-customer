@@ -26,7 +26,8 @@
         </after>
 
         <!--Open New Customer Page -->
-        <actionGroup ref="AdminNavigateNewCustomerActionGroup" stepKey="navigateToNewCustomerPage"/>
+        <amOnPage url="{{AdminNewCustomerPage.url}}" stepKey="navigateToNewCustomerPage"/>
+        <waitForPageLoad stepKey="waitToCustomerPageLoad"/>
         <click selector="{{AdminCustomerMainActionsSection.saveButton}}" stepKey="saveCustomer"/>
         <waitForPageLoad stepKey="waitForPageToLoad"/>
 

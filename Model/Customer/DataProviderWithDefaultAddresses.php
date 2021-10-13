@@ -9,20 +9,17 @@ namespace Magento\Customer\Model\Customer;
 use Magento\Customer\Model\Address;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
-use Magento\Directory\Model\CountryFactory;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Eav\Model\Entity\Type;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Customer\Model\FileUploaderDataResolver;
 use Magento\Customer\Model\AttributeMetadataResolver;
-use Magento\Ui\DataProvider\AbstractDataProvider;
 
 /**
  * Refactored version of Magento\Customer\Model\Customer\DataProvider with eliminated usage of addresses collection.
  */
-class DataProviderWithDefaultAddresses extends AbstractDataProvider
+class DataProviderWithDefaultAddresses extends \Magento\Ui\DataProvider\AbstractDataProvider
 {
     /**
      * @var array
@@ -52,7 +49,7 @@ class DataProviderWithDefaultAddresses extends AbstractDataProvider
     private $allowToShowHiddenAttributes;
 
     /**
-     * @var CountryFactory
+     * @var \Magento\Directory\Model\CountryFactory
      */
     private $countryFactory;
 
@@ -72,14 +69,14 @@ class DataProviderWithDefaultAddresses extends AbstractDataProvider
      * @param string $requestFieldName
      * @param CustomerCollectionFactory $customerCollectionFactory
      * @param Config $eavConfig
-     * @param CountryFactory $countryFactory
+     * @param \Magento\Directory\Model\CountryFactory $countryFactory
      * @param SessionManagerInterface $session
      * @param FileUploaderDataResolver $fileUploaderDataResolver
      * @param AttributeMetadataResolver $attributeMetadataResolver
      * @param bool $allowToShowHiddenAttributes
      * @param array $meta
      * @param array $data
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -88,7 +85,7 @@ class DataProviderWithDefaultAddresses extends AbstractDataProvider
         string $requestFieldName,
         CustomerCollectionFactory $customerCollectionFactory,
         Config $eavConfig,
-        CountryFactory $countryFactory,
+        \Magento\Directory\Model\CountryFactory $countryFactory,
         SessionManagerInterface $session,
         FileUploaderDataResolver $fileUploaderDataResolver,
         AttributeMetadataResolver $attributeMetadataResolver,
@@ -161,20 +158,16 @@ class DataProviderWithDefaultAddresses extends AbstractDataProvider
      */
     private function prepareDefaultAddress($address): array
     {
-        if (!$address) {
-            return [];
-        }
+        $addressData = [];
 
-        $addressData = $address->getData();
-        if (isset($addressData['street']) && !is_array($addressData['street'])) {
-            $addressData['street'] = explode("\n", $addressData['street']);
+        if (!empty($address)) {
+            $addressData = $address->getData();
+            if (isset($addressData['street']) && !\is_array($address['street'])) {
+                $addressData['street'] = explode("\n", $addressData['street']);
+            }
+            $countryId = $addressData['country_id'] ?? null;
+            $addressData['country'] = $this->countryFactory->create()->loadByCode($countryId)->getName();
         }
-        if (!empty($addressData['country_id'])) {
-            $addressData['country'] = $this->countryFactory->create()
-                ->loadByCode($addressData['country_id'])
-                ->getName();
-        }
-        $addressData['region'] = $address->getRegion();
 
         return $addressData;
     }
@@ -184,7 +177,7 @@ class DataProviderWithDefaultAddresses extends AbstractDataProvider
      *
      * @param Type $entityType
      * @return array
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function getAttributesMeta(Type $entityType): array
     {

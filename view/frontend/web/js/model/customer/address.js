@@ -6,7 +6,7 @@
 /**
  * @api
  */
-define(['underscore'], function (_) {
+define([], function () {
     'use strict';
 
     /**
@@ -44,7 +44,7 @@ define(['underscore'], function (_) {
             vatId: addressData['vat_id'],
             sameAsBilling: addressData['same_as_billing'],
             saveInAddressBook: addressData['save_in_address_book'],
-            customAttributes: _.toArray(addressData['custom_attributes']).reverse(),
+            customAttributes: addressData['custom_attributes'],
 
             /**
              * @return {*}

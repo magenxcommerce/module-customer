@@ -29,7 +29,8 @@
         </after>
 
         <!--Open New Customer Page -->
-        <actionGroup ref="AdminNavigateNewCustomerActionGroup" stepKey="waitToCustomerPageLoad"/>
+        <amOnPage url="{{AdminNewCustomerPage.url}}" stepKey="navigateToNewCustomerPage"/>
+        <waitForPageLoad stepKey="waitToCustomerPageLoad"/>
         <fillField userInput="{{CustomerEntityOne.firstname}}" selector="{{AdminCustomerAccountInformationSection.firstName}}" stepKey="fillFirstName"/>
         <fillField userInput="{{CustomerEntityOne.lastname}}" selector="{{AdminCustomerAccountInformationSection.lastName}}" stepKey="fillLastName"/>
         <fillField userInput="{{CustomerEntityOne.email}}" selector="{{AdminCustomerAccountInformationSection.email}}" stepKey="fillEmail"/>
