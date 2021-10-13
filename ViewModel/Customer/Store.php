@@ -113,12 +113,7 @@ class Store implements OptionSourceInterface
         if (!empty($this->dataPersistor->get('customer')['account'])) {
             $currentWebsiteId = (string)$this->dataPersistor->get('customer')['account']['website_id'];
         } else {
-            $defaultStore = $this->storeManager->getDefaultStoreView();
-            if (!$defaultStore) {
-                $stores = $this->storeManager->getStores();
-                $defaultStore = array_shift($stores);
-            }
-            $currentWebsiteId = $defaultStore->getWebsiteId();
+            $currentWebsiteId = $this->storeManager->getDefaultStoreView()->getWebsiteId();
         }
 
         foreach ($options as $key => $option) {

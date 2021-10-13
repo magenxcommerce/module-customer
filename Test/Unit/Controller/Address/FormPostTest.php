@@ -495,7 +495,7 @@ class FormPostTest extends TestCase
         $this->request->expects($this->once())
             ->method('isPost')
             ->willReturn(true);
-        $this->request->expects($this->exactly(4))
+        $this->request->expects($this->exactly(3))
             ->method('getParam')
             ->willReturnMap([
                 ['id', null, $addressId],

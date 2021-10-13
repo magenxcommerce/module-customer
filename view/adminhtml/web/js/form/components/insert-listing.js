@@ -62,9 +62,7 @@ define([
          * @param {Object} data - customer address
          */
         deleteMassaction: function (data) {
-            var ids = data.selected || this.selections().selected();
-
-            ids = _.map(ids, function (val) {
+            var ids = _.map(data, function (val) {
                 return parseFloat(val);
             });
 
@@ -72,7 +70,7 @@ define([
         },
 
         /**
-         * Delete customer address and selections by provided ids.
+         * Delete customer address by ids
          *
          * @param {Array} ids
          */
@@ -87,10 +85,6 @@ define([
             if (ids.indexOf(defaultBillingId) !== -1) {
                 this.source.set('data.default_billing_address', []);
             }
-
-            _.each(ids, function (id) {
-                this.selections().deselect(id.toString(), false);
-            }, this);
         }
     });
 });

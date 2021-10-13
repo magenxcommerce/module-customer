@@ -60,7 +60,7 @@ class Action extends \Magento\Backend\Block\Widget\Grid\Column\Renderer\Abstract
                     'newsletter/template/preview',
                     [
                         'id' => $row->getTemplateId(),
-                        'subscriber' => $row->getSubscriberId(),
+                        'subscriber' => $this->_coreRegistry->registry('subscriber')->getId()
                     ]
                 ),
                 'target' => '_blank',

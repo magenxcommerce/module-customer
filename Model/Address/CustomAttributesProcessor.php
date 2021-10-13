@@ -71,7 +71,7 @@ class CustomAttributesProcessor
     {
         $attributeOptionLabels = [];
 
-        if (isset($customAttribute['value']) && $customAttribute['value'] != null) {
+        if (!empty($customAttribute['value'])) {
             $customAttributeValues = explode(',', $customAttribute['value']);
             $attributeOptions = $this->attributeOptionManager->getItems(
                 \Magento\Customer\Model\Indexer\Address\AttributeProvider::ENTITY,

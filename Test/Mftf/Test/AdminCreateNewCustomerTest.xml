@@ -42,7 +42,8 @@
             <argument name="email" value="{{CustomerEntityOne.email}}"/>
         </actionGroup>
         <waitForPageLoad stepKey="waitForPageToLoad"/>
-        <actionGroup ref="AdminClickFirstRowEditLinkOnCustomerGridActionGroup" stepKey="clickOnEditButton1"/>
+        <click selector="{{AdminCustomerGridSection.firstRowEditLink}}" stepKey="clickOnEditButton1"/>
+        <waitForPageLoad stepKey="waitForCustomerEditPageToLoad"/>
 
         <!-- Assert Customer Title -->
         <click selector="{{AdminCustomerAccountInformationSection.accountInformationButton}}" stepKey="clickOnAccountInformation"/>

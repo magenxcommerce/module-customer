@@ -26,7 +26,8 @@
         <after>
             <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
             <!-- Reset customer grid filter -->
-            <actionGroup ref="AdminOpenCustomersGridActionGroup" stepKey="goToCustomersGridPage"/>
+            <amOnPage url="{{AdminCustomerPage.url}}" stepKey="goToCustomersGridPage"/>
+            <waitForPageLoad stepKey="waitForCustomersGrid"/>
             <actionGroup ref="AdminResetFilterInCustomerGrid" stepKey="resetFilter"/>
 
             <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>

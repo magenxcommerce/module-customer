@@ -4,11 +4,8 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Controller\Account;
 
-use Magento\Customer\Api\SessionCleanerInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Customer\Model\Session;
@@ -39,23 +36,14 @@ class Logout extends AbstractAccount implements HttpGetActionInterface, HttpPost
     private $cookieMetadataManager;
 
     /**
-     * @var SessionCleanerInterface
-     */
-    private $sessionCleaner;
-
-    /**
      * @param Context $context
      * @param Session $customerSession
-     * @param SessionCleanerInterface|null $sessionCleaner
      */
     public function __construct(
         Context $context,
-        Session $customerSession,
-        SessionCleanerInterface $sessionCleaner = null
+        Session $customerSession
     ) {
         $this->session = $customerSession;
-        $objectManager = ObjectManager::getInstance();
-        $this->sessionCleaner = $sessionCleaner ?? $objectManager->get(SessionCleanerInterface::class);
         parent::__construct($context);
     }
 
@@ -97,7 +85,6 @@ class Logout extends AbstractAccount implements HttpGetActionInterface, HttpPost
         $lastCustomerId = $this->session->getId();
         $this->session->logout()->setBeforeAuthUrl($this->_redirect->getRefererUrl())
             ->setLastCustomerId($lastCustomerId);
-        $this->sessionCleaner->clearFor((int)$lastCustomerId);
         if ($this->getCookieManager()->getCookie('mage-cache-sessid')) {
             $metadata = $this->getCookieMetadataFactory()->createCookieMetadata();
             $metadata->setPath('/');

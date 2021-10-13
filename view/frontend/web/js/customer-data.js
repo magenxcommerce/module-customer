@@ -78,7 +78,7 @@ define([
             var parameters;
 
             sectionNames = sectionConfig.filterClientSideSections(sectionNames);
-            parameters = _.isArray(sectionNames) && sectionNames.indexOf('*') < 0 ? {
+            parameters = _.isArray(sectionNames) ? {
                 sections: sectionNames.join(',')
             } : [];
             parameters['force_new_section_timestamp'] = forceNewSectionTimestamp;
@@ -219,8 +219,7 @@ define([
         initStorage: function () {
             $.cookieStorage.setConf({
                 path: '/',
-                expires: new Date(Date.now() + parseInt(options.cookieLifeTime, 10) * 1000),
-                samesite: 'lax'
+                expires: new Date(Date.now() + parseInt(options.cookieLifeTime, 10) * 1000)
             });
             storage = $.initNamespaceStorage('mage-cache-storage').localStorage;
             storageInvalidation = $.initNamespaceStorage('mage-cache-storage-section-invalidation').localStorage;
@@ -261,9 +260,6 @@ define([
                     expiredSectionNames.push(sectionName);
                 }
             });
-
-            //remove expired section names of previously installed/enable modules
-            expiredSectionNames = _.intersection(expiredSectionNames, sectionConfig.getSectionNames());
 
             return _.uniq(expiredSectionNames);
         },

@@ -289,8 +289,9 @@ abstract class Index extends \Magento\Backend\App\Action
     protected function _addSessionErrorMessages($messages)
     {
         $messages = (array)$messages;
+        $session = $this->_getSession();
 
-        $callback = function ($error) {
+        $callback = function ($error) use ($session) {
             if (!$error instanceof Error) {
                 $error = new Error($error);
             }

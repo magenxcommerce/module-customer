@@ -12,7 +12,6 @@ use Magento\Customer\Api\Data\AttributeMetadataInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Helper\View;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Escaper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -27,11 +26,6 @@ class ViewTest extends TestCase
     /** @var CustomerMetadataInterface|MockObject */
     protected $customerMetadataService;
 
-    /**
-     * @var Escaper|MockObject
-     */
-    private $escaperMock;
-
     protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
@@ -44,9 +38,8 @@ class ViewTest extends TestCase
         $this->customerMetadataService->expects($this->any())
             ->method('getAttributeMetadata')
             ->willReturn($attributeMetadata);
-        $this->escaperMock = $this->createMock(Escaper::class);
 
-        $this->object = new View($this->context, $this->customerMetadataService, $this->escaperMock);
+        $this->object = new View($this->context, $this->customerMetadataService);
     }
 
     /**
@@ -67,7 +60,6 @@ class ViewTest extends TestCase
             ->method('getLastname')->willReturn($lastName);
         $customerData->expects($this->any())
             ->method('getSuffix')->willReturn($suffix);
-        $this->escaperMock->expects($this->once())->method('escapeHtml')->with($result)->willReturn($result);
         $this->assertEquals($result, $this->object->getCustomerName($customerData));
     }
 

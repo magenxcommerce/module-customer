@@ -5,23 +5,18 @@
  */
 namespace Magento\Customer\Ui\Component\DataProvider;
 
-use Exception;
 use Magento\Customer\Api\CustomerMetadataInterface;
-use Magento\Customer\Api\Data\OptionInterface;
-use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Customer\Model\AccountManagement;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Customer\Api\GroupRepositoryInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Document
- *
- * Set the attribute label and value for UI Component
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Document extends \Magento\Framework\View\Element\UiComponent\DataProvider\Document
 {
@@ -132,7 +127,7 @@ class Document extends \Magento\Framework\View\Element\UiComponent\DataProvider\
     private function setGenderValue()
     {
         $value = $this->getData(self::$genderAttributeCode);
-
+        
         if (!$value) {
             $this->setCustomAttribute(self::$genderAttributeCode, 'N/A');
             return;
@@ -140,15 +135,8 @@ class Document extends \Magento\Framework\View\Element\UiComponent\DataProvider\
 
         try {
             $attributeMetadata = $this->customerMetadata->getAttributeMetadata(self::$genderAttributeCode);
-            $options = $attributeMetadata->getOptions();
-            array_walk(
-                $options,
-                function (OptionInterface $option) use ($value) {
-                    if ($option->getValue() == $value) {
-                        $this->setCustomAttribute(self::$genderAttributeCode, $option->getLabel());
-                    }
-                }
-            );
+            $option = $attributeMetadata->getOptions()[$value];
+            $this->setCustomAttribute(self::$genderAttributeCode, $option->getLabel());
         } catch (NoSuchEntityException $e) {
             $this->setCustomAttribute(self::$genderAttributeCode, 'N/A');
         }
@@ -211,7 +199,6 @@ class Document extends \Magento\Framework\View\Element\UiComponent\DataProvider\
      * Update lock expires value. Method set account lock text value to match what is shown in grid
      *
      * @return void
-     * @throws Exception
      */
     private function setAccountLockValue()
     {

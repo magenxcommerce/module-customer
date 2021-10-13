@@ -10,7 +10,7 @@ namespace Magento\Customer\Model\Metadata\Form;
 class Multiline extends Text
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function extractValue(\Magento\Framework\App\RequestInterface $request)
     {
@@ -24,8 +24,7 @@ class Multiline extends Text
     }
 
     /**
-     * @inheritDoc
-     *
+     * {@inheritdoc}
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function validateValue($value)
@@ -44,8 +43,7 @@ class Multiline extends Text
         if (!is_array($value)) {
             $value = [$value];
         }
-        $multilineCount = $attribute->getMultilineCount();
-        for ($i = 0; $i < $multilineCount; $i++) {
+        for ($i = 0; $i < $attribute->getMultilineCount(); $i++) {
             if (!isset($value[$i])) {
                 $value[$i] = null;
             }
@@ -59,7 +57,6 @@ class Multiline extends Text
                 if (!empty($value[$i])) {
                     $result = parent::validateValue($value[$i]);
                     if ($result !== true) {
-                        // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                         $errors = array_merge($errors, $result);
                     }
                 }
@@ -73,20 +70,18 @@ class Multiline extends Text
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function compactValue($value)
     {
-        if (is_array($value)) {
-            $value = trim(implode("\n", $value));
+        if (!is_array($value)) {
+            $value = [$value];
         }
-        $value = [$value];
-
         return parent::compactValue($value);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function restoreValue($value)
     {
@@ -94,7 +89,7 @@ class Multiline extends Text
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function outputValue($format = \Magento\Customer\Model\Metadata\ElementFactory::OUTPUT_FORMAT_TEXT)
     {
