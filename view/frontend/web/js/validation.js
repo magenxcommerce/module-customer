@@ -1,23 +1,19 @@
 define([
     'jquery',
     'moment',
-    'mageUtils',
     'jquery/validate',
-    'validation',
     'mage/translate'
-], function ($, moment, utils) {
+], function ($, moment) {
     'use strict';
 
     $.validator.addMethod(
         'validate-dob',
-        function (value, element, params) {
-            var dateFormat = utils.convertToMomentFormat(params.dateFormat);
-
+        function (value) {
             if (value === '') {
                 return true;
             }
 
-            return moment(value, dateFormat).isBefore(moment());
+            return moment(value).isBefore(moment());
         },
         $.mage.__('The Date of Birth should not be greater than today.')
     );
