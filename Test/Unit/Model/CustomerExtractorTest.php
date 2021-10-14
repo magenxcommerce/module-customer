@@ -3,6 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
 
 namespace Magento\Customer\Test\Unit\Model;
 
@@ -17,43 +18,45 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\RequestInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit test CustomerExtractorTest
  */
-class CustomerExtractorTest extends \PHPUnit\Framework\TestCase
+class CustomerExtractorTest extends TestCase
 {
     /** @var CustomerExtractor */
     protected $customerExtractor;
 
-    /** @var FormFactory|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var FormFactory|MockObject */
     protected $formFactory;
 
-    /** @var CustomerInterfaceFactory|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var CustomerInterfaceFactory|MockObject */
     protected $customerFactory;
 
-    /** @var StoreManagerInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var StoreManagerInterface|MockObject */
     protected $storeManager;
 
-    /** @var GroupManagementInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var GroupManagementInterface|MockObject */
     protected $customerGroupManagement;
 
-    /** @var DataObjectHelper|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var DataObjectHelper|MockObject */
     protected $dataObjectHelper;
 
-    /** @var RequestInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var RequestInterface|MockObject */
     protected $request;
 
-    /** @var Form|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Form|MockObject */
     protected $customerForm;
 
-    /** @var CustomerInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var CustomerInterface|MockObject */
     protected $customerData;
 
-    /** @var StoreInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var StoreInterface|MockObject */
     protected $store;
 
-    /** @var GroupInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var GroupInterface|MockObject */
     protected $customerGroup;
 
     protected function setUp(): void

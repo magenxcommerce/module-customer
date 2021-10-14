@@ -15,6 +15,8 @@ use Magento\Framework\Validator\AbstractValidator;
  */
 class Name extends AbstractValidator
 {
+    private const PATTERN_NAME = '/(?:[\p{L}\p{M}\,\-\_\.\'\s\d]){1,255}+/u';
+
     /**
      * Validate name fields.
      *
@@ -24,15 +26,15 @@ class Name extends AbstractValidator
     public function isValid($customer)
     {
         if (!$this->isValidName($customer->getFirstname())) {
-            $this->_addErrorMessages('firstname', (array)['First Name is not valid!']);
+            parent::_addMessages([['firstname' => 'First Name is not valid!']]);
         }
 
         if (!$this->isValidName($customer->getLastname())) {
-            $this->_addErrorMessages('lastname', (array)['Last Name is not valid!']);
+            parent::_addMessages([['lastname' => 'Last Name is not valid!']]);
         }
 
         if (!$this->isValidName($customer->getMiddlename())) {
-            $this->_addErrorMessages('middlename', (array)['Middle Name is not valid!']);
+            parent::_addMessages([['middlename' => 'Middle Name is not valid!']]);
         }
 
         return count($this->_messages) == 0;
@@ -47,28 +49,11 @@ class Name extends AbstractValidator
     private function isValidName($nameValue)
     {
         if ($nameValue != null) {
-            $pattern = '/(?:[\p{L}\p{M}\,\-\_\.\'\"\s\d]){1,255}+/u';
-            if (preg_match($pattern, $nameValue, $matches)) {
+            if (preg_match(self::PATTERN_NAME, $nameValue, $matches)) {
                 return $matches[0] == $nameValue;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Add error messages.
-     *
-     * @param string $code
-     * @param array $messages
-     * @return void
-     */
-    protected function _addErrorMessages($code, array $messages)
-    {
-        if (!array_key_exists($code, $this->_messages)) {
-            $this->_messages[$code] = $messages;
-        } else {
-            $this->_messages[$code] = array_merge($this->_messages[$code], $messages);
-        }
     }
 }

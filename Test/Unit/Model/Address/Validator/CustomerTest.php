@@ -48,7 +48,7 @@ class CustomerTest extends TestCase
     public function testValidateNewCustomerWithNewCustomerAddress(): void
     {
         $addressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'getCustomerId'])
+            ->onlyMethods(['getId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -64,11 +64,11 @@ class CustomerTest extends TestCase
     public function testValidateNewCustomerWithExistingCustomerAddress(): void
     {
         $addressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'getCustomerId'])
+            ->onlyMethods(['getId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
         $originalAddressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'load', 'getCustomerId'])
+            ->onlyMethods(['getId', 'load', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -98,7 +98,7 @@ class CustomerTest extends TestCase
     public function testValidateExistingCustomerWithNewCustomerAddress(): void
     {
         $addressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'getCustomerId'])
+            ->onlyMethods(['getId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -114,11 +114,11 @@ class CustomerTest extends TestCase
     public function testValidateExistingCustomerWithRelevantCustomerAddress(): void
     {
         $addressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'getCustomerId'])
+            ->onlyMethods(['getId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
         $originalAddressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'load', 'getCustomerId'])
+            ->onlyMethods(['getId', 'load', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -141,11 +141,11 @@ class CustomerTest extends TestCase
     public function testValidateExistingCustomerAddressWithNotRelevantCustomer(): void
     {
         $addressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'getCustomerId'])
+            ->onlyMethods(['getId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
         $originalAddressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'load', 'getCustomerId'])
+            ->onlyMethods(['getId', 'load', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -176,11 +176,11 @@ class CustomerTest extends TestCase
     public function testValidateExistingCustomerWithQuoteAddress(): void
     {
         $addressMock = $this->getMockBuilder(QuoteAddress::class)
-            ->setMethods(['getCustomerAddressId', 'getCustomerId'])
+            ->onlyMethods(['getCustomerAddressId', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
         $originalAddressMock = $this->getMockBuilder(Address::class)
-            ->setMethods(['getId', 'load', 'getCustomerId'])
+            ->onlyMethods(['getId', 'load', 'getCustomerId'])
             ->disableOriginalConstructor()
             ->getMock();
 

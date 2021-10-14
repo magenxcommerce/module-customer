@@ -15,8 +15,8 @@
             <title value="Register customer on storefront after customer form validation failed."/>
             <description value="Customer should be able to re-submit register form after correcting invalid form data on storefront."/>
             <severity value="CRITICAL"/>
-            <testCaseId value="MC-38681"/>
-            <useCaseId value="MC-38680"/>
+            <testCaseId value="MC-38532"/>
+            <useCaseId value="MC-38509"/>
             <group value="customer"/>
         </annotations>
 

@@ -4,6 +4,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
 
 namespace Magento\Customer\Controller\Account;
 
@@ -33,9 +34,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\State\UserLockedException;
 use Magento\Customer\Controller\AbstractAccount;
 use Magento\Framework\Phrase;
+use Magento\Framework\Filesystem;
+use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
- * Customer edit page.
+ * Customer edit account information controller
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -97,6 +100,11 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
     private $addressRegistry;
 
     /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
      * @var SessionCleanerInterface|null
      */
     private $sessionCleaner;
@@ -110,6 +118,7 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
      * @param CustomerExtractor $customerExtractor
      * @param Escaper|null $escaper
      * @param AddressRegistry|null $addressRegistry
+     * @param Filesystem $filesystem
      * @param SessionCleanerInterface|null $sessionCleaner
      */
     public function __construct(
@@ -121,6 +130,7 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
         CustomerExtractor $customerExtractor,
         ?Escaper $escaper = null,
         AddressRegistry $addressRegistry = null,
+        Filesystem $filesystem = null,
         ?SessionCleanerInterface $sessionCleaner = null
     ) {
         parent::__construct($context);
@@ -131,6 +141,7 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
         $this->customerExtractor = $customerExtractor;
         $this->escaper = $escaper ?: ObjectManager::getInstance()->get(Escaper::class);
         $this->addressRegistry = $addressRegistry ?: ObjectManager::getInstance()->get(AddressRegistry::class);
+        $this->filesystem = $filesystem ?: ObjectManager::getInstance()->get(Filesystem::class);
         $this->sessionCleaner = $sessionCleaner ?: ObjectManager::getInstance()->get(SessionCleanerInterface::class);
     }
 
@@ -191,6 +202,7 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
      * Change customer email or password action
      *
      * @return Redirect
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute()
     {
@@ -205,9 +217,17 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
                 $currentCustomerDataObject
             );
 
+            $attributeToDelete = $this->_request->getParam('delete_attribute_value');
+            if ($attributeToDelete !== null) {
+                $this->deleteCustomerFileAttribute(
+                    $customerCandidateDataObject,
+                    $attributeToDelete
+                );
+            }
+
             try {
                 // whether a customer enabled change email option
-                $this->processChangeEmailRequest($currentCustomerDataObject);
+                $isEmailChanged = $this->processChangeEmailRequest($currentCustomerDataObject);
 
                 // whether a customer enabled change password option
                 $isPasswordChanged = $this->changeCustomerPassword($currentCustomerDataObject->getEmail());
@@ -223,7 +243,12 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
                 );
                 $this->dispatchSuccessEvent($customerCandidateDataObject);
                 $this->messageManager->addSuccessMessage(__('You saved the account information.'));
-
+                // logout from current session if password or email changed.
+                if ($isPasswordChanged || $isEmailChanged) {
+                    $this->session->logout();
+                    $this->session->start();
+                    return $resultRedirect->setPath('customer/account/login');
+                }
                 return $resultRedirect->setPath('customer/account');
             } catch (InvalidEmailOrPasswordException $e) {
                 $this->messageManager->addErrorMessage($this->escaper->escapeHtml($e->getMessage()));
@@ -340,7 +365,7 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
      * Process change email request
      *
      * @param CustomerInterface $currentCustomerDataObject
-     * @return void
+     * @return bool
      * @throws InvalidEmailOrPasswordException
      * @throws UserLockedException
      */
@@ -353,13 +378,15 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
                     $currentCustomerDataObject->getId(),
                     $this->getRequest()->getPost('current_password')
                 );
-                $this->sessionCleaner->clearFor($currentCustomerDataObject->getId());
+                $this->sessionCleaner->clearFor((int) $currentCustomerDataObject->getId());
+                return true;
             } catch (InvalidEmailOrPasswordException $e) {
                 throw new InvalidEmailOrPasswordException(
                     __("The password doesn't match this account. Verify the password and try again.")
                 );
             }
         }
+        return false;
     }
 
     /**
@@ -388,6 +415,43 @@ class EditPost extends AbstractAccount implements CsrfAwareActionInterface, Http
         foreach ($customer->getAddresses() as $address) {
             $addressModel = $this->addressRegistry->retrieve($address->getId());
             $addressModel->setShouldIgnoreValidation(true);
+        }
+    }
+
+    /**
+     * Removes file attribute from customer entity and file from filesystem
+     *
+     * @param CustomerInterface $customerCandidateDataObject
+     * @param string $attributeToDelete
+     * @return void
+     */
+    private function deleteCustomerFileAttribute(
+        CustomerInterface $customerCandidateDataObject,
+        string $attributeToDelete
+    ) : void {
+        if ($attributeToDelete !== '') {
+            if (strpos($attributeToDelete, ',') !== false) {
+                $attributes = explode(',', $attributeToDelete);
+            } else {
+                $attributes[] = $attributeToDelete;
+            }
+            foreach ($attributes as $attr) {
+                $attributeValue = $customerCandidateDataObject->getCustomAttribute($attr);
+                if ($attributeValue!== null) {
+                    if ($attributeValue->getValue() !== '') {
+                        $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+                        $fileName = $attributeValue->getValue();
+                        $path = $mediaDirectory->getAbsolutePath('customer' . $fileName);
+                        if ($fileName && $mediaDirectory->isFile($path)) {
+                            $mediaDirectory->delete($path);
+                        }
+                        $customerCandidateDataObject->setCustomAttribute(
+                            $attr,
+                            ''
+                        );
+                    }
+                }
+            }
         }
     }
 }

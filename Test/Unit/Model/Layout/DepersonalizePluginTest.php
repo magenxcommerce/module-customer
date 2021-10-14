@@ -17,10 +17,11 @@ use Magento\Framework\Session\Generic as GenericSession;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager as ObjectManagerHelper;
 use Magento\Framework\View\LayoutInterface;
 use Magento\PageCache\Model\DepersonalizeChecker;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests \Magento\Customer\Model\Layout\DepersonalizePlugin.
+ * Unit tests for \Magento\Customer\Model\Layout\DepersonalizePlugin class.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -32,37 +33,37 @@ class DepersonalizePluginTest extends TestCase
     private $plugin;
 
     /**
-     * @var \Magento\Framework\View\Layout|\PHPUnit\Framework\MockObject\MockObject
+     * @var LayoutInterface|MockObject
      */
     private $layoutMock;
 
     /**
-     * @var GenericSession|\PHPUnit\Framework\MockObject\MockObject
+     * @var GenericSession|MockObject
      */
     private $sessionMock;
 
     /**
-     * @var CustomerSession|\PHPUnit\Framework\MockObject\MockObject
+     * @var CustomerSession|MockObject
      */
     private $customerSessionMock;
 
     /**
-     * @var CustomerFactory|\PHPUnit\Framework\MockObject\MockObject
+     * @var CustomerFactory|MockObject
      */
     private $customerFactoryMock;
 
     /**
-     * @var Customer|\PHPUnit\Framework\MockObject\MockObject
+     * @var Customer|MockObject
      */
     private $customerMock;
 
     /**
-     * @var VisitorModel|\PHPUnit\Framework\MockObject\MockObject
+     * @var VisitorModel|MockObject
      */
     private $visitorMock;
 
     /**
-     * @var DepersonalizeChecker|\PHPUnit\Framework\MockObject\MockObject
+     * @var DepersonalizeChecker|MockObject
      */
     private $depersonalizeCheckerMock;
 
@@ -72,19 +73,21 @@ class DepersonalizePluginTest extends TestCase
     protected function setUp(): void
     {
         $this->layoutMock = $this->getMockForAbstractClass(LayoutInterface::class);
-        $this->sessionMock = $this->createPartialMock(
-            GenericSession::class,
-            ['clearStorage', 'setData', 'getData']
-        );
+        $this->sessionMock = $this->getMockBuilder(GenericSession::class)
+            ->addMethods(['setData'])
+            ->onlyMethods(['clearStorage', 'getData'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->customerSessionMock = $this->createPartialMock(
             CustomerSession::class,
             ['getCustomerGroupId', 'setCustomerGroupId', 'clearStorage', 'setCustomer']
         );
         $this->customerFactoryMock = $this->createPartialMock(CustomerFactory::class, ['create']);
-        $this->customerMock = $this->createPartialMock(
-            Customer::class,
-            ['setGroupId', '__wakeup']
-        );
+        $this->customerMock = $this->getMockBuilder(Customer::class)
+            ->addMethods(['setGroupId'])
+            ->onlyMethods(['__wakeup'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->visitorMock = $this->createMock(VisitorModel::class);
         $this->customerFactoryMock->expects($this->any())
             ->method('create')
@@ -115,7 +118,7 @@ class DepersonalizePluginTest extends TestCase
         $this->sessionMock
             ->expects($this->once())
             ->method('getData')
-            ->with($this->equalTo(FormKey::FORM_KEY));
+            ->with(FormKey::FORM_KEY);
         $this->plugin->beforeGenerateXml($this->layoutMock);
     }
 
@@ -142,23 +145,27 @@ class DepersonalizePluginTest extends TestCase
     public function testAfterGenerateElements(): void
     {
         $this->depersonalizeCheckerMock->expects($this->once())->method('checkIfDepersonalize')->willReturn(true);
-        $this->visitorMock->expects($this->once())->method('setSkipRequestLogging')->with($this->equalTo(true));
+        $this->visitorMock->expects($this->once())->method('setSkipRequestLogging')->with(true);
         $this->visitorMock->expects($this->once())->method('unsetData');
         $this->sessionMock->expects($this->once())->method('clearStorage');
         $this->customerSessionMock->expects($this->once())->method('clearStorage');
-        $this->customerSessionMock->expects($this->once())->method('setCustomerGroupId')->with($this->equalTo(null));
-        $this->customerMock->expects($this->once())->method('setGroupId')->with($this->equalTo(null))->willReturnSelf();
+        $this->customerSessionMock->expects($this->once())->method('setCustomerGroupId')->with(null);
+        $this->customerMock
+            ->expects($this->once())
+            ->method('setGroupId')
+            ->with(null)
+            ->willReturnSelf();
         $this->sessionMock
             ->expects($this->once())
             ->method('setData')
             ->with(
-                $this->equalTo(FormKey::FORM_KEY),
-                $this->equalTo(null)
+                FormKey::FORM_KEY,
+                null
             );
         $this->customerSessionMock
             ->expects($this->once())
             ->method('setCustomer')
-            ->with($this->equalTo($this->customerMock));
+            ->with($this->customerMock);
         $this->assertEmpty($this->plugin->afterGenerateElements($this->layoutMock));
     }
 

@@ -22,7 +22,7 @@
         <grabMultiple selector="{{AdminProductFormAdvancedPricingSection.productTierPriceCustGroupSelectOptions('0')}}" stepKey="customerGroups"/>
 
         <assertNotContains stepKey="assertCustomerGroupNotInOptions">
-            <actualResult type="arrayVariable">customerGroups</actualResult>
+            <actualResult type="variable">customerGroups</actualResult>
             <expectedResult type="string">{{customerGroup.code}}</expectedResult>
         </assertNotContains>
     </actionGroup>
