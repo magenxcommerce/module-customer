@@ -3,8 +3,6 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Customer\Model;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -13,7 +11,6 @@ use Magento\Customer\Api\GroupManagementInterface;
 use Magento\Customer\Model\Config\Share;
 use Magento\Customer\Model\ResourceModel\Customer as ResourceCustomer;
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Session\Generic;
 
 /**
  * Customer session model
@@ -73,7 +70,7 @@ class Session extends \Magento\Framework\Session\SessionManager
     protected $_configShare;
 
     /**
-     * @var Generic
+     * @var \Magento\Framework\Session\Generic
      */
     protected $_session;
 
@@ -135,7 +132,7 @@ class Session extends \Magento\Framework\Session\SessionManager
      * @param ResourceCustomer $customerResource
      * @param CustomerFactory $customerFactory
      * @param \Magento\Framework\UrlFactory $urlFactory
-     * @param Generic $session
+     * @param \Magento\Framework\Session\Generic $session
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Framework\App\Http\Context $httpContext
      * @param CustomerRepositoryInterface $customerRepository
@@ -161,7 +158,7 @@ class Session extends \Magento\Framework\Session\SessionManager
         ResourceCustomer $customerResource,
         CustomerFactory $customerFactory,
         \Magento\Framework\UrlFactory $urlFactory,
-        Generic $session,
+        \Magento\Framework\Session\Generic $session,
         \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Framework\App\Http\Context $httpContext,
         CustomerRepositoryInterface $customerRepository,
@@ -179,10 +176,6 @@ class Session extends \Magento\Framework\Session\SessionManager
         $this->customerRepository = $customerRepository;
         $this->_eventManager = $eventManager;
         $this->_httpContext = $httpContext;
-        $this->groupManagement = $groupManagement;
-        $this->response = $response;
-        $this->accountConfirmation = $accountConfirmation ?: ObjectManager::getInstance()
-            ->get(AccountConfirmation::class);
         parent::__construct(
             $request,
             $sidResolver,
@@ -194,6 +187,10 @@ class Session extends \Magento\Framework\Session\SessionManager
             $cookieMetadataFactory,
             $appState
         );
+        $this->groupManagement = $groupManagement;
+        $this->response = $response;
+        $this->accountConfirmation = $accountConfirmation ?: ObjectManager::getInstance()
+            ->get(AccountConfirmation::class);
         $this->_eventManager->dispatch('customer_session_init', ['customer_session' => $this]);
     }
 
@@ -313,11 +310,7 @@ class Session extends \Magento\Framework\Session\SessionManager
     public function getCustomer()
     {
         if ($this->_customerModel === null) {
-            $this->_customerModel = $this->_customerFactory->create();
-
-            if ($this->getCustomerId()) {
-                $this->_customerResource->load($this->_customerModel, $this->getCustomerId());
-            }
+            $this->_customerModel = $this->_customerFactory->create()->load($this->getCustomerId());
         }
 
         return $this->_customerModel;
@@ -511,9 +504,8 @@ class Session extends \Magento\Framework\Session\SessionManager
     /**
      * Authenticate controller action by login customer
      *
-     * @param bool|null $loginUrl
-     * @return bool
-     * @throws \Magento\Framework\Exception\SessionException
+     * @param   bool|null $loginUrl
+     * @return  bool
      */
     public function authenticate($loginUrl = null)
     {
